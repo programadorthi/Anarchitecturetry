@@ -1,0 +1,60 @@
+apply plugin: 'com.android.feature'
+
+android {
+    baseFeature true
+
+    compileSdkVersion rootProject.ext.android.compileSdkVersion
+    buildToolsVersion rootProject.ext.android.buildToolsVersion
+
+    defaultConfig {
+        minSdkVersion rootProject.ext.android.minSdkVersion
+
+        resConfigs rootProject.ext.android.resConfigs
+
+        targetSdkVersion rootProject.ext.android.targetSdkVersion
+
+        versionCode rootProject.ext.android.versionCode
+        versionName rootProject.ext.android.versionName
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility rootProject.ext.android.javaVersion
+        targetCompatibility rootProject.ext.android.javaVersion
+    }
+
+    flavorDimensions "default"
+
+    productFlavors {
+        dev {
+            minSdkVersion rootProject.ext.android.minSdkVersionDev
+            versionNameSuffix "-dev"
+        }
+        prod {
+        }
+    }
+
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+    application project(':app')
+    feature project(":blockchain")
+
+    // Kotlin
+    implementation rootProject.ext.commonDependencies.kotlinJdk
+
+    // Moshi
+    implementation rootProject.ext.commonDependencies.moshi
+
+    // RxJava 2
+    implementation rootProject.ext.commonDependencies.rxJava2
+
+}

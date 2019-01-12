@@ -1,0 +1,107 @@
+allprojects {
+    repositories {
+        google()
+        jcenter()
+        mavenCentral()
+        maven { url "https://jitpack.io" }
+    }
+}
+
+ext {
+
+    // AndroidX libraries
+    annotation          = '1.0.1'
+    appcompat           = '1.0.2'
+    cardview            = '1.0.0'
+    constraintlayout    = '1.1.3'
+    lifecycleCompiler   = '2.0.0'
+    lifecycleExtensions = '2.0.0'
+    recyclerview        = '1.0.0'
+    room                = '2.0.0'
+
+    // Third party libraries
+    alerter   = '4.0.0'
+    dagger2   = '2.20'
+    moshi     = '1.8.0'
+    okHttp    = '3.12.0'
+    retrofit2 = '2.5.0'
+    rxJava2   = '2.2.4'
+
+    // Testing
+    androidTestArchCore = '2.0.0'
+    androidTestCore     = '1.1.0'
+    androidTestExt      = '1.1.0'
+    androidTestRules    = '1.1.1'
+    androidTestRunner   = '1.1.1'
+    assertJ             = '3.11.1'
+    espresso            = '3.1.1'
+    junit               = '4.12'
+    mockk               = '1.9'
+
+    // Log
+    timber = '4.7.1'
+
+    commonDependencies = [
+            alerter                         : "com.tapadoo.android:alerter:${alerter}",
+
+            annotation                      : "androidx.annotation:annotation:${annotation}",
+
+            appcompat                       : "androidx.appcompat:appcompat:${appcompat}",
+
+            cardview                        : "androidx.cardview:cardview:${cardview}",
+
+            constraintlayout                : "androidx.constraintlayout:constraintlayout:${constraintlayout}",
+
+            dagger2                         : "com.google.dagger:dagger:${dagger2}",
+            dagger2Compiler                 : "com.google.dagger:dagger-compiler:${dagger2}",
+
+            kotlinJdk                       : "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${kotlin_version}",
+
+            lifecycleCompiler               : "androidx.lifecycle:lifecycle-compiler:${lifecycleCompiler}",
+            lifecycleExtensions             : "androidx.lifecycle:lifecycle-extensions:${lifecycleExtensions}",
+
+            moshi                           : "com.squareup.moshi:moshi:${moshi}",
+            moshiCodegen                    : "com.squareup.moshi:moshi-kotlin-codegen:${moshi}",
+
+            okHttp                          : "com.squareup.okhttp3:okhttp:${okHttp}",
+            okHttpInterceptor               : "com.squareup.okhttp3:logging-interceptor:${okHttp}",
+
+            recyclerview                    : "androidx.recyclerview:recyclerview:${recyclerview}",
+
+            retrofit2                       : "com.squareup.retrofit2:retrofit:${retrofit2}",
+            retrofitRxAdapter               : "com.squareup.retrofit2:adapter-rxjava2:${retrofit2}",
+            retrofitConverterMoshi          : "com.squareup.retrofit2:converter-moshi:${retrofit2}",
+
+            roomCompiler                    : "androidx.room:room-compiler:${room}",
+            roomRuntime                     : "androidx.room:room-runtime:${room}",
+            roomRxJava2                     : "androidx.room:room-rxjava2:${room}",
+
+            rxJava2                         : "io.reactivex.rxjava2:rxjava:${rxJava2}",
+    ]
+
+    developmentDependencies = [
+            timber : "com.jakewharton.timber:timber:${timber}",
+    ]
+
+    testingDependencies = [
+            androidTestArchCore : "androidx.arch.core:core-testing:${androidTestArchCore}",
+
+            androidTestCore     : "androidx.test:core:${androidTestCore}",
+
+            androidTestExt      : "androidx.test.ext:junit:${androidTestExt}",
+
+            androidTestRules    : "androidx.test:rules:${androidTestRules}",
+            androidTestRunner   : "androidx.test:runner:${androidTestRunner}",
+
+            assertj             : "org.assertj:assertj-core:${assertJ}",
+
+            espressoContrib     : "androidx.test.espresso:espresso-contrib:${espresso}",
+            espressoCore        : "androidx.test.espresso:espresso-core:${espresso}",
+            espressoIntents     : "androidx.test.espresso:espresso-intents:${espresso}",
+
+            junit               : "junit:junit:${junit}",
+
+            mockk               : "io.mockk:mockk:${mockk}",
+            mockkAndroid        : "io.mockk:mockk-android:${mockk}",
+    ]
+}

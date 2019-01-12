@@ -1,0 +1,112 @@
+apply plugin: 'com.android.feature'
+
+apply plugin: 'kotlin-android'
+
+apply plugin: 'kotlin-android-extensions'
+
+apply plugin: 'kotlin-kapt'
+
+android {
+
+    compileSdkVersion rootProject.ext.android.compileSdkVersion
+    buildToolsVersion rootProject.ext.android.buildToolsVersion
+
+    defaultConfig {
+        minSdkVersion rootProject.ext.android.minSdkVersion
+
+        resConfigs rootProject.ext.android.resConfigs
+
+        targetSdkVersion rootProject.ext.android.targetSdkVersion
+        testInstrumentationRunner rootProject.ext.android.testRunner
+
+        versionCode rootProject.ext.android.versionCode
+        versionName rootProject.ext.android.versionName
+    }
+
+    buildTypes {
+        debug {
+        }
+        release {
+            proguardFiles 'proguard-rules.pro'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility rootProject.ext.android.javaVersion
+        targetCompatibility rootProject.ext.android.javaVersion
+    }
+
+    flavorDimensions "default"
+
+    productFlavors {
+        dev {
+            minSdkVersion rootProject.ext.android.minSdkVersionDev
+            vectorDrawables.generatedDensities = rootProject.ext.android.generatedDensitiesDev
+            vectorDrawables.useSupportLibrary = true
+            versionNameSuffix "-dev"
+        }
+        prod {
+        }
+    }
+
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+    // Features
+    application project(':app')
+    implementation project(':base')
+
+    // Alerter
+    implementation rootProject.ext.commonDependencies.alerter
+
+    // Android
+    implementation rootProject.ext.commonDependencies.annotation
+    implementation rootProject.ext.commonDependencies.appcompat
+    implementation rootProject.ext.commonDependencies.cardview
+    implementation rootProject.ext.commonDependencies.constraintlayout
+    implementation rootProject.ext.commonDependencies.recyclerview
+
+    // Architecture components
+    implementation rootProject.ext.commonDependencies.lifecycleExtensions
+    kapt rootProject.ext.commonDependencies.lifecycleCompiler
+
+    // Kotlin
+    implementation rootProject.ext.commonDependencies.kotlinJdk
+
+    // Moshi
+    implementation rootProject.ext.commonDependencies.moshi
+    kapt rootProject.ext.commonDependencies.moshiCodegen
+
+    // Retrofit
+    implementation rootProject.ext.commonDependencies.retrofit2
+
+    // Room
+    implementation rootProject.ext.commonDependencies.roomRuntime
+    implementation rootProject.ext.commonDependencies.roomRxJava2
+    kapt rootProject.ext.commonDependencies.roomCompiler
+
+    // RxJava 2
+    implementation rootProject.ext.commonDependencies.rxJava2
+
+    // Timber
+    implementation rootProject.ext.developmentDependencies.timber
+
+    // Unit Tests
+    testImplementation rootProject.ext.testingDependencies.junit
+    testImplementation rootProject.ext.testingDependencies.mockk
+    testImplementation rootProject.ext.testingDependencies.assertj
+    testImplementation rootProject.ext.testingDependencies.androidTestArchCore
+
+    // Espresso Tests
+    androidTestImplementation rootProject.ext.testingDependencies.mockkAndroid
+    androidTestImplementation rootProject.ext.testingDependencies.androidTestCore
+    androidTestImplementation rootProject.ext.testingDependencies.androidTestExt
+    androidTestImplementation rootProject.ext.testingDependencies.androidTestRunner
+    androidTestImplementation rootProject.ext.testingDependencies.androidTestRules
+    androidTestImplementation rootProject.ext.testingDependencies.espressoCore
+    androidTestImplementation rootProject.ext.testingDependencies.espressoContrib
+    androidTestImplementation rootProject.ext.testingDependencies.espressoIntents
+    androidTestImplementation rootProject.ext.testingDependencies.androidTestArchCore
+}

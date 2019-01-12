@@ -1,0 +1,30 @@
+ext {
+
+    // Project configurations
+    android = [
+            applicationId         : "br.com.programadorthi.anarchtecturetry",
+            applicationName       : "An archtecture try",
+            buildToolsVersion     : "28.0.3",
+            compileSdkVersion     : 28,
+            generatedDensities    : ["mdpi", "hdpi", "xhdpi"],
+            generatedDensitiesDev : ["xhdpi"],
+            javaVersion           : JavaVersion.VERSION_1_8,
+            keyAlias              : "keyAliasValue",
+            keyPassword           : "keyPassValue",
+            minSdkVersion         : 19,
+            minSdkVersionDev      : 23,
+            resConfigs            : ["en", "pt-rBR"],
+            storePassword         : "storePassValue",
+            targetSdkVersion      : 28,
+            testRunner            : "br.com.programadorthi.anarchtecturetry.EspressoTestRunner",
+            versionCode           : 1,
+            versionName           : "0.0.1",
+    ]
+
+    // Endpoints setup
+    endpoints = [
+            development_endpoint : "\"https://api.blockchain.info/\"",
+            production_endpoint  : "\"https://api.blockchain.info/\"",
+    ]
+
+}
