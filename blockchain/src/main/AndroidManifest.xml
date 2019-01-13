@@ -3,7 +3,7 @@
     package="br.com.programadorthi.blockchain">
 
     <application>
-        <activity android:name=".BlockchainActivity">
+        <activity android:name="br.com.programadorthi.blockchain.presentation.BlockchainActivity">
             <intent-filter android:order="1">
                 <action android:name="android.intent.action.VIEW" />
 
