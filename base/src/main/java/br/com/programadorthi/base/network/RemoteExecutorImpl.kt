@@ -2,14 +2,15 @@ package br.com.programadorthi.base.network
 
 import br.com.programadorthi.base.exception.BaseException
 import io.reactivex.Completable
+import io.reactivex.Scheduler
 import io.reactivex.Single
 import io.reactivex.functions.Consumer
 import io.reactivex.functions.Function
-import io.reactivex.schedulers.Schedulers
 
 class RemoteExecutorImpl(
     private val crashlyticsConsumer: Consumer<Throwable>,
-    private val networkHandler: NetworkHandler
+    private val networkHandler: NetworkHandler,
+    private val scheduler: Scheduler
 ) : RemoteExecutor {
 
     /**
@@ -23,7 +24,7 @@ class RemoteExecutorImpl(
         return when (networkHandler.hasInternetConnection()) {
             false -> Completable.error(BaseException.NetworkException)
             true -> body()
-                .subscribeOn(Schedulers.io())
+                .subscribeOn(scheduler)
                 .doOnError(crashlyticsConsumer)
         }
     }
@@ -39,7 +40,7 @@ class RemoteExecutorImpl(
         return when (networkHandler.hasInternetConnection()) {
             false -> Single.error(BaseException.NetworkException)
             true -> body()
-                .subscribeOn(Schedulers.io())
+                .subscribeOn(scheduler)
                 .doOnError(crashlyticsConsumer)
         }
     }
@@ -59,7 +60,7 @@ class RemoteExecutorImpl(
         return when (networkHandler.hasInternetConnection()) {
             false -> Single.error(BaseException.NetworkException)
             true -> body()
-                .subscribeOn(Schedulers.io())
+                .subscribeOn(scheduler)
                 .map(mapper)
                 .doOnError(crashlyticsConsumer)
         }

@@ -72,6 +72,10 @@ dependencies {
     implementation rootProject.ext.commonDependencies.lifecycleExtensions
     kapt rootProject.ext.commonDependencies.lifecycleCompiler
 
+    // Dagger 2
+    implementation rootProject.ext.commonDependencies.dagger2
+    kapt rootProject.ext.commonDependencies.dagger2Compiler
+
     // Kotlin
     implementation rootProject.ext.commonDependencies.kotlinJdk
 

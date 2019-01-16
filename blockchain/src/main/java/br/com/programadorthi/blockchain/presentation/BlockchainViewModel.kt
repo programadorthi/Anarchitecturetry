@@ -3,17 +3,16 @@ package br.com.programadorthi.blockchain.presentation
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import br.com.programadorthi.base.model.Resource
 import br.com.programadorthi.base.presentation.ViewActionState
+import br.com.programadorthi.base.viewmodel.ViewModelHelper
 import br.com.programadorthi.blockchain.domain.Blockchain
 import br.com.programadorthi.blockchain.domain.BlockchainInteractor
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.functions.Consumer
-import io.reactivex.schedulers.Schedulers
+import io.reactivex.Scheduler
 
 class BlockchainViewModel(
     private val blockchainInteractor: BlockchainInteractor,
-    private val compositeDisposable: CompositeDisposable
+    private val scheduler: Scheduler,
+    private val viewModelHelper: ViewModelHelper
 ) : ViewModel() {
 
     private val mutableCurrentMarketPrice = MutableLiveData<ViewActionState<Blockchain>>()
@@ -26,7 +25,7 @@ class BlockchainViewModel(
 
     override fun onCleared() {
         super.onCleared()
-        compositeDisposable.dispose()
+        viewModelHelper.release()
     }
 
     fun getCurrentMarketPrice() {
@@ -34,10 +33,10 @@ class BlockchainViewModel(
 
         val disposable = blockchainInteractor
             .getCurrentMarketPrice()
-            .observeOn(Schedulers.computation())
-            .subscribe(onNext(mutableCurrentMarketPrice))
+            .observeOn(scheduler)
+            .subscribe(viewModelHelper.onNext(mutableCurrentMarketPrice))
 
-        compositeDisposable.add(disposable)
+        viewModelHelper.addToComposite(disposable)
     }
 
     fun getAllMarketPrices() {
@@ -45,12 +44,11 @@ class BlockchainViewModel(
 
         val disposable = blockchainInteractor
             .getAllMarketPrices()
-            .observeOn(Schedulers.computation())
-            .subscribe(onNext(mutableMarketPrices))
+            .observeOn(scheduler)
+            .subscribe(viewModelHelper.onNext(mutableMarketPrices))
 
-        compositeDisposable.add(disposable)
+        viewModelHelper.addToComposite(disposable)
     }
-
 
     fun fetchCurrentMarketPrice() {
         val currentValue = mutableCurrentMarketPrice.value
@@ -64,12 +62,12 @@ class BlockchainViewModel(
 
         val disposable = blockchainInteractor
             .fetchCurrentMarketPrice()
-            .observeOn(Schedulers.computation())
+            .observeOn(scheduler)
             .subscribe({}, { ex ->
                 mutableCurrentMarketPrice.postValue(ViewActionState.failure(ex, result))
             })
 
-        compositeDisposable.add(disposable)
+        viewModelHelper.addToComposite(disposable)
     }
 
     fun fetchAllMarketPrices() {
@@ -84,25 +82,12 @@ class BlockchainViewModel(
 
         val disposable = blockchainInteractor
             .fetchAllMarketPrices()
-            .observeOn(Schedulers.computation())
+            .observeOn(scheduler)
             .subscribe({}, { ex ->
                 mutableMarketPrices.postValue(ViewActionState.failure(ex, result))
             })
 
-        compositeDisposable.add(disposable)
+        viewModelHelper.addToComposite(disposable)
     }
-
-    private fun <T> onNext(liveData: MutableLiveData<ViewActionState<T>>): Consumer<Resource<T>> =
-        Consumer { result ->
-            when (result) {
-                is Resource.Error -> liveData.postValue(
-                    ViewActionState.failure(
-                        result.error,
-                        result.data
-                    )
-                )
-                is Resource.Success -> liveData.postValue(ViewActionState.complete(result.data))
-            }
-        }
 
 }
