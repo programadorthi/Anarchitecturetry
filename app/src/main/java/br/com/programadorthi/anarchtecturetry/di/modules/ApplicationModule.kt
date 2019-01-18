@@ -1,9 +1,10 @@
-package br.com.programadorthi.base.di
+package br.com.programadorthi.anarchtecturetry.di.modules
 
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import br.com.programadorthi.base.adapter.BigDecimalJsonAdapter
+import br.com.programadorthi.base.di.ViewModelFactory
 import br.com.programadorthi.base.exception.CrashlyticsConsumer
 import br.com.programadorthi.base.network.NetworkHandler
 import br.com.programadorthi.base.network.NetworkHandlerImpl
@@ -22,7 +23,7 @@ import javax.inject.Provider
 import javax.inject.Singleton
 
 @Module
-object BaseModule {
+object ApplicationModule {
 
     @Provides
     @JvmStatic

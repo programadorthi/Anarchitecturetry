@@ -86,6 +86,8 @@ dependencies {
 
     // Dagger 2
     implementation rootProject.ext.commonDependencies.dagger2
+    implementation rootProject.ext.commonDependencies.dagger2AndroidSupport
+    kapt rootProject.ext.commonDependencies.dagger2AndroidProcessor
     kapt rootProject.ext.commonDependencies.dagger2Compiler
 
     // Kotlin
