@@ -5,7 +5,6 @@ import br.com.programadorthi.base.di.ViewModelKey
 import br.com.programadorthi.base.network.BaseMapper
 import br.com.programadorthi.base.network.RemoteExecutor
 import br.com.programadorthi.base.utils.Constants
-import br.com.programadorthi.base.viewmodel.ViewModelHelper
 import br.com.programadorthi.blockchain.data.BlockchainRepositoryImpl
 import br.com.programadorthi.blockchain.data.local.BlockchainDao
 import br.com.programadorthi.blockchain.data.local.BlockchainLocalRepository
@@ -101,8 +100,7 @@ object BlockchainModule {
     @JvmStatic
     fun provideBlockchainViewModel(
         blockchainInteractor: BlockchainInteractor,
-        viewModelHelper: ViewModelHelper,
         @Named(Constants.COMPUTATION_SCHEDULER) scheduler: Scheduler
-    ): ViewModel = BlockchainViewModel(blockchainInteractor, scheduler, viewModelHelper)
+    ): ViewModel = BlockchainViewModel(blockchainInteractor, scheduler)
 
 }

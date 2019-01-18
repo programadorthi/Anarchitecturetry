@@ -10,8 +10,6 @@ import br.com.programadorthi.base.network.NetworkHandlerImpl
 import br.com.programadorthi.base.network.RemoteExecutor
 import br.com.programadorthi.base.network.RemoteExecutorImpl
 import br.com.programadorthi.base.utils.Constants
-import br.com.programadorthi.base.viewmodel.ViewModelHelper
-import br.com.programadorthi.base.viewmodel.ViewModelHelperImpl
 import com.squareup.moshi.JsonAdapter
 import dagger.Module
 import dagger.Provides
@@ -67,9 +65,5 @@ object BaseModule {
     fun provideViewModelFactory(
         creators: Map<Class<out ViewModel>, @JvmSuppressWildcards Provider<ViewModel>>
     ): ViewModelProvider.Factory = ViewModelFactory(creators)
-
-    @Provides
-    @JvmStatic
-    fun provideViewModelHelper(): ViewModelHelper = ViewModelHelperImpl()
 
 }

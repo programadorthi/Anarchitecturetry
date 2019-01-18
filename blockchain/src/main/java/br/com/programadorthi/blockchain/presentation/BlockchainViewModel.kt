@@ -1,21 +1,15 @@
 package br.com.programadorthi.blockchain.presentation
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import br.com.programadorthi.base.presentation.ViewActionState
-import br.com.programadorthi.base.viewmodel.ViewModelHelper
-import br.com.programadorthi.blockchain.domain.Blockchain
 import br.com.programadorthi.blockchain.domain.BlockchainInteractor
 import io.reactivex.Scheduler
 
 class BlockchainViewModel(
     private val blockchainInteractor: BlockchainInteractor,
-    private val scheduler: Scheduler,
-    private val viewModelHelper: ViewModelHelper
+    private val scheduler: Scheduler
 ) : ViewModel() {
 
-    private val mutableCurrentMarketPrice = MutableLiveData<ViewActionState<Blockchain>>()
+    /*private val mutableCurrentMarketPrice = MutableLiveData<ViewActionState<Blockchain>>()
     val currentMarketPrice: LiveData<ViewActionState<Blockchain>>
         get() = mutableCurrentMarketPrice
 
@@ -88,6 +82,6 @@ class BlockchainViewModel(
             })
 
         viewModelHelper.addToComposite(disposable)
-    }
+    }*/
 
 }
