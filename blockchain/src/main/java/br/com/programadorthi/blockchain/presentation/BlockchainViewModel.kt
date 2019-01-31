@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import br.com.programadorthi.blockchain.domain.BlockchainInteractor
 import io.reactivex.Scheduler
 
-class BlockchainViewModel(
+class BlockchainViewModel (
     private val blockchainInteractor: BlockchainInteractor,
     private val scheduler: Scheduler
 ) : ViewModel() {

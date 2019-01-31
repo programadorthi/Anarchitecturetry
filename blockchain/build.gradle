@@ -69,14 +69,7 @@ dependencies {
     implementation rootProject.ext.commonDependencies.recyclerview
 
     // Architecture components
-    implementation rootProject.ext.commonDependencies.lifecycleExtensions
-    kapt rootProject.ext.commonDependencies.lifecycleCompiler
-
-    // Dagger 2
-    implementation rootProject.ext.commonDependencies.dagger2
-    implementation rootProject.ext.commonDependencies.dagger2AndroidSupport
-    kapt rootProject.ext.commonDependencies.dagger2AndroidProcessor
-    kapt rootProject.ext.commonDependencies.dagger2Compiler
+    implementation rootProject.ext.commonDependencies.lifecycleViewModel
 
     // Kotlin
     implementation rootProject.ext.commonDependencies.kotlinJdk

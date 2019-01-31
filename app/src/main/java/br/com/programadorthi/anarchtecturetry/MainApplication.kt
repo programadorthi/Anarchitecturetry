@@ -1,22 +1,18 @@
 package br.com.programadorthi.anarchtecturetry
 
-import android.app.Activity
 import android.app.Application
-import br.com.programadorthi.anarchtecturetry.di.DaggerMainComponent
-import dagger.android.AndroidInjector
-import dagger.android.DispatchingAndroidInjector
-import dagger.android.HasActivityInjector
-import javax.inject.Inject
+import timber.log.Timber
 
-class MainApplication : Application(), HasActivityInjector {
-
-    @Inject
-    lateinit var dispatchingAndroidInjector: DispatchingAndroidInjector<Activity>
+class MainApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        DaggerMainComponent.create().inject(this@MainApplication)
+        initTimber()
     }
 
-    override fun activityInjector(): AndroidInjector<Activity> = dispatchingAndroidInjector
+    private fun initTimber() {
+        if (BuildConfig.DEBUG) {
+            Timber.plant(Timber.DebugTree())
+        }
+    }
 }
