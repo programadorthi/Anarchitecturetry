@@ -9,7 +9,7 @@ import br.com.programadorthi.blockchain.domain.Blockchain
 
 class BlockchainAdapter : RecyclerView.Adapter<BlockchainAdapter.BlockchainViewHolder>() {
 
-    private var collection: List<Blockchain> = emptyList()
+    private var collection = emptyList<Blockchain>()
 
     fun changeDataSet(data: List<Blockchain>) {
         collection = data

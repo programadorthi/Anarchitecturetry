@@ -1,9 +1,8 @@
-package br.com.programadorthi.anarchtecturetry
+package br.com.programadorthi.anarchtecturetry.database
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import br.com.programadorthi.blockchain.data.local.BigDecimalTypeConverter
 import br.com.programadorthi.blockchain.data.local.BlockchainCurrentValueEntity
 import br.com.programadorthi.blockchain.data.local.BlockchainDao
 import br.com.programadorthi.blockchain.data.local.BlockchainEntity

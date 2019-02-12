@@ -1,4 +1,4 @@
-package br.com.programadorthi.blockchain.data.local
+package br.com.programadorthi.anarchtecturetry.database
 
 import androidx.room.TypeConverter
 import java.math.BigDecimal

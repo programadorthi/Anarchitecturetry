@@ -69,7 +69,7 @@ dependencies {
     implementation rootProject.ext.commonDependencies.recyclerview
 
     // Architecture components
-    implementation rootProject.ext.commonDependencies.lifecycleViewModel
+    implementation rootProject.ext.commonDependencies.lifecycleExtensions
 
     // Kotlin
     implementation rootProject.ext.commonDependencies.kotlinJdk
