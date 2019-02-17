@@ -12,7 +12,7 @@ sealed class ViewActionState<out T> {
     /**
      * The error state with a error
      */
-    data class Error<out T>(val error: Throwable, val data: T) : ViewActionState<T>()
+    data class Error<out T>(val error: Throwable, val previousData: T) : ViewActionState<T>()
 
     /**
      * The loading state
@@ -22,7 +22,8 @@ sealed class ViewActionState<out T> {
     companion object {
         fun <T> complete(result: T): ViewActionState<T> = Complete(result)
 
-        fun <T> failure(error: Throwable, data: T): ViewActionState<T> = Error(error, data)
+        fun <T> failure(error: Throwable, previousData: T): ViewActionState<T> =
+            Error(error, previousData)
 
         fun <T> loading(): ViewActionState<T> = Loading()
     }

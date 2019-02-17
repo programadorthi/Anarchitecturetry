@@ -53,6 +53,13 @@ dependencies {
     // Android
     implementation rootProject.ext.commonDependencies.core
 
+    // Architecture components
+    implementation(rootProject.ext.commonDependencies.lifecycleExtensions) {
+        exclude group: 'androidx.lifecycle', module: 'lifecycle-process'
+        exclude group: 'androidx.lifecycle', module: 'lifecycle-runtime'
+        exclude group: 'androidx.lifecycle', module: 'lifecycle-service'
+    }
+
     // Kotlin
     implementation rootProject.ext.commonDependencies.kotlinJdk
 

@@ -2,7 +2,7 @@ package br.com.programadorthi.blockchain.di
 
 import br.com.programadorthi.base.network.BaseMapper
 import br.com.programadorthi.base.network.RemoteExecutor
-import br.com.programadorthi.base.utils.Constants
+import br.com.programadorthi.base.utils.ANDROID_SCHEDULER
 import br.com.programadorthi.blockchain.data.BlockchainRepositoryImpl
 import br.com.programadorthi.blockchain.data.local.BlockchainDao
 import br.com.programadorthi.blockchain.data.local.BlockchainLocalRepository
@@ -75,7 +75,7 @@ object BlockchainModule {
     @JvmStatic
     fun provideBlockchainViewModel(
         blockchainInteractor: BlockchainInteractor,
-        @Named(Constants.ANDROID_SCHEDULER) scheduler: Scheduler
+        @Named(ANDROID_SCHEDULER) scheduler: Scheduler
     ): BlockchainViewModel = BlockchainViewModel(blockchainInteractor, scheduler)
 
 }

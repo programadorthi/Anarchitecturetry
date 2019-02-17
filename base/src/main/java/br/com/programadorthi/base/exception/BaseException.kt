@@ -20,17 +20,13 @@ sealed class BaseException(message: String = "") : RuntimeException(message) {
     /**
      * Object used to identify a generic http request exception
      */
-    object HTTPException : BaseException("Server HTTP response code is not 200, 400 or 403")
+    data class HttpCallException(val code: Int) :
+        BaseException("Server HTTP response code was $code")
 
     /**
      * Object used to identify a network without internet connection
      */
-    object NetworkException : BaseException()
-
-    /**
-     * Object used to identify an unauthorized user
-     */
-    object UnauthorizedException : BaseException()
+    class NoInternetConnectionException : BaseException()
 
     /**
      * Exception to identify an invalid endpoint
@@ -43,8 +39,8 @@ sealed class BaseException(message: String = "") : RuntimeException(message) {
          * E.g: Send the exception to Crashlytics
          */
         fun isAnExceptionToReport(throwable: Throwable?): Boolean =
-            throwable is BaseException.HTTPException ||
-            throwable is BaseException.EssentialParamMissingException ||
-            throwable is BaseException.UnknownEndpointException
+            throwable is BaseException.HttpCallException ||
+                    throwable is BaseException.EssentialParamMissingException ||
+                    throwable is BaseException.UnknownEndpointException
     }
 }
