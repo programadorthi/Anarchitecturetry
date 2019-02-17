@@ -32,50 +32,56 @@ class BlockchainViewModel(
     }
 
     fun fetchCurrentMarketPrice() {
-        val disposable = mapCurrentValueAndShowLoadingAfter(
-            mutableLiveData = mutableCurrentMarketPrice,
-            defaultValue = Blockchain.EMPTY
-        ).flatMapCompletable { result ->
-            blockchainInteractor
-                .fetchCurrentMarketPrice()
-                .observeOn(scheduler)
-                .doOnError { err ->
-                    mutableCurrentMarketPrice.postValue(
-                        ViewActionState.failure(
-                            err,
-                            result
-                        )
-                    )
+        val disposable = Observable
+            .just(mutableCurrentMarketPrice.value)
+            .map { currentValue ->
+                when (currentValue) {
+                    is ViewActionState.Complete -> currentValue.result
+                    is ViewActionState.Error -> currentValue.previousData
+                    else -> Blockchain.EMPTY
                 }
-        }.subscribe()
+            }
+            .doOnNext { mutableCurrentMarketPrice.value = ViewActionState.loading() }
+            .flatMapCompletable { currentValue ->
+                blockchainInteractor
+                    .fetchCurrentMarketPrice()
+                    .observeOn(scheduler)
+                    .doOnError { err ->
+                        mutableCurrentMarketPrice.postValue(
+                            ViewActionState.failure(err, currentValue)
+                        )
+                    }
+            }.subscribe()
 
         compositeDisposable.add(disposable)
     }
 
     fun fetchAllMarketPrices() {
-        val disposable = mapCurrentValueAndShowLoadingAfter(
-            mutableLiveData = mutableMarketPrices,
-            defaultValue = emptyList()
-        ).flatMapCompletable { result ->
-            blockchainInteractor
-                .fetchAllMarketPrices()
-                .doOnError { err ->
-                    mutableMarketPrices.postValue(
-                        ViewActionState.failure(
-                            err,
-                            result
-                        )
-                    )
+        val disposable = Observable
+            .just(mutableMarketPrices.value)
+            .map { currentValue ->
+                when (currentValue) {
+                    is ViewActionState.Complete -> currentValue.result
+                    is ViewActionState.Error -> currentValue.previousData
+                    else -> emptyList()
                 }
-                .observeOn(scheduler)
-        }.subscribe()
+            }
+            .doOnNext { mutableMarketPrices.value = ViewActionState.loading() }
+            .flatMapCompletable { currentValue ->
+                blockchainInteractor
+                    .fetchAllMarketPrices()
+                    .observeOn(scheduler)
+                    .doOnError { err ->
+                        mutableMarketPrices.postValue(
+                            ViewActionState.failure(err, currentValue)
+                        )
+                    }
+            }.subscribe()
 
         compositeDisposable.add(disposable)
     }
 
     fun getCurrentMarketPrice() {
-        mutableCurrentMarketPrice.value = ViewActionState.loading()
-
         val disposable = blockchainInteractor
             .getCurrentMarketPrice()
             .map { result ->
@@ -85,14 +91,13 @@ class BlockchainViewModel(
                 }
             }
             .observeOn(scheduler)
+            .doOnSubscribe { mutableCurrentMarketPrice.value = ViewActionState.loading() }
             .subscribe(mutableCurrentMarketPrice::postValue)
 
         compositeDisposable.add(disposable)
     }
 
     fun getAllMarketPrices() {
-        mutableMarketPrices.value = ViewActionState.loading()
-
         val disposable = blockchainInteractor
             .getAllMarketPrices()
             .map { result ->
@@ -102,26 +107,10 @@ class BlockchainViewModel(
                 }
             }
             .observeOn(scheduler)
+            .doOnSubscribe { mutableMarketPrices.value = ViewActionState.loading() }
             .subscribe(mutableMarketPrices::postValue)
 
         compositeDisposable.add(disposable)
-    }
-
-    @Suppress("UNCHECKED_CAST")
-    private fun <T> mapCurrentValueAndShowLoadingAfter(
-        mutableLiveData: MutableLiveData<ViewActionState<T>>,
-        defaultValue: T
-    ): Observable<T> {
-        return Observable
-            .just(mutableLiveData.value)
-            .map { currentValue ->
-                when (currentValue) {
-                    is ViewActionState.Complete<*> -> currentValue.result as T
-                    is ViewActionState.Error<*> -> currentValue.previousData as T
-                    else -> defaultValue
-                }
-            }
-            .doOnNext { mutableLiveData.value = ViewActionState.loading() }
     }
 
 }
