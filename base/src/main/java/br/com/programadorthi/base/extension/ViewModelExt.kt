@@ -1,10 +1,5 @@
 @file:JvmName("ViewModelUtils")
 
-/**
- * This is a custom implementation created by Cejas
- * https://fernandocejas.com/2018/05/07/architecting-android-reloaded/
- */
-
 package br.com.programadorthi.base.extension
 
 import androidx.fragment.app.Fragment
@@ -13,38 +8,47 @@ import androidx.lifecycle.*
 import br.com.programadorthi.base.exception.BaseException
 
 /**
- * Extension function to get a [ViewModel] from [ViewModelProviders]
- * using this factory and a body to execute actions with this ViewModel
- *
- * @param factory The factory used to create the ViewModel
- * @param body The actions to execute with this ViewModel
- * @return The instance created before or a new instance
+ * Below are custom implementations based in the Gabor Varadi (aka Zhuinden, EpicPandaForce)
+ * https://stackoverflow.com/a/50681021/2463035
  */
-inline fun <reified T : ViewModel> Fragment.viewModel(
-    factory: ViewModelProvider.Factory,
+
+inline fun <reified T : ViewModel> viewModelFactory(viewModel: T) =
+    object : ViewModelProvider.Factory {
+        override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+            if (modelClass == viewModel::class.java) {
+                @Suppress("UNCHECKED_CAST")
+                return viewModel as T
+            }
+            throw IllegalArgumentException("Unexpected argument: $modelClass")
+        }
+    }
+
+inline fun <reified T : ViewModel> Fragment.createViewModel(
+    viewModel: T,
     body: T.() -> Unit
 ): T {
-    val vm = ViewModelProviders.of(this, factory)[T::class.java]
+    val vm = T::class.java.let { clazz ->
+        ViewModelProviders.of(this, viewModelFactory(viewModel)).get(clazz)
+    }
+    vm.body()
+    return vm
+}
+
+inline fun <reified T : ViewModel> FragmentActivity.createViewModel(
+    viewModel: T,
+    body: T.() -> Unit
+): T {
+    val vm = T::class.java.let { clazz ->
+        ViewModelProviders.of(this, viewModelFactory(viewModel)).get(clazz)
+    }
     vm.body()
     return vm
 }
 
 /**
- * Extension function to get a [ViewModel] from [ViewModelProviders]
- * using this factory and a body to execute actions with this ViewModel
- *
- * @param factory The factory used to create the ViewModel
- * @param body The actions to execute with this ViewModel
- * @return The instance created before or a new instance
+ * Below are custom implementations created by Cejas
+ * https://fernandocejas.com/2018/05/07/architecting-android-reloaded/
  */
-inline fun <reified T : ViewModel> FragmentActivity.viewModel(
-    factory: ViewModelProvider.Factory,
-    body: T.() -> Unit
-): T {
-    val vm = ViewModelProviders.of(this, factory)[T::class.java]
-    vm.body()
-    return vm
-}
 
 /**
  * Extension function to attach a behavior to any [LiveData]

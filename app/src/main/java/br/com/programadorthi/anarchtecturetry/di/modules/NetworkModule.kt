@@ -13,10 +13,13 @@ import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.moshi.MoshiConverterFactory
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
+import javax.inject.Named
 import javax.inject.Singleton
 
 @Module
 object NetworkModule {
+
+    private const val HTTP_LOGGING_INTERCEPTOR = "http_logging_interceptor"
 
     @Provides
     @Singleton
@@ -24,19 +27,19 @@ object NetworkModule {
 
     @Provides
     @Singleton
+    @Named(HTTP_LOGGING_INTERCEPTOR)
     fun provideHttpLoggingInterceptor(): Interceptor {
-        val interceptor =
-            HttpLoggingInterceptor(HttpLoggingInterceptor.Logger { message -> Timber.d(message); })
-        if (BuildConfig.DEBUG) {
-            interceptor.level = HttpLoggingInterceptor.Level.BODY
+        return HttpLoggingInterceptor(
+            HttpLoggingInterceptor.Logger { message -> Timber.d(message); }
+        ).apply {
+            level = HttpLoggingInterceptor.Level.BODY
         }
-        return interceptor
     }
 
     @Provides
     @Singleton
     fun provideOkHttpClient(
-        httpLoggingInterceptor: Interceptor
+        @Named(HTTP_LOGGING_INTERCEPTOR) httpLoggingInterceptor: Interceptor
     ): OkHttpClient {
 
         val okHttpClientBuilder = OkHttpClient.Builder()

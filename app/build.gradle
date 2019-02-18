@@ -84,6 +84,11 @@ dependencies {
 
     // Dagger 2
     implementation rootProject.ext.commonDependencies.dagger2
+    implementation(rootProject.ext.commonDependencies.dagger2AndroidSupport) {
+        exclude group: "com.android.support", module: "appcompat-v7"
+        exclude group: "com.android.support", module: "support-fragment"
+    }
+    kapt rootProject.ext.commonDependencies.dagger2AndroidProcessor
     kapt rootProject.ext.commonDependencies.dagger2Compiler
 
     // Kotlin

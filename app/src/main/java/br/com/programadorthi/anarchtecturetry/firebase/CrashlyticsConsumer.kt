@@ -1,5 +1,6 @@
-package br.com.programadorthi.base.exception
+package br.com.programadorthi.anarchtecturetry.firebase
 
+import br.com.programadorthi.base.exception.BaseException
 import io.reactivex.functions.Consumer
 
 /**
@@ -9,7 +10,10 @@ import io.reactivex.functions.Consumer
  */
 class CrashlyticsConsumer : Consumer<Throwable> {
     override fun accept(throwable: Throwable?) {
-        if (BaseException.isAnExceptionToReport(throwable)) {
+        if (BaseException.isAnExceptionToReport(
+                throwable
+            )
+        ) {
             // Here we send the Throwable to the Crashlytics
         }
     }

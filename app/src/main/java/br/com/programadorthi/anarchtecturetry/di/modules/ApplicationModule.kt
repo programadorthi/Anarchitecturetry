@@ -1,13 +1,14 @@
 package br.com.programadorthi.anarchtecturetry.di.modules
 
 import android.content.Context
+import br.com.programadorthi.anarchtecturetry.firebase.CrashlyticsConsumer
 import br.com.programadorthi.base.adapter.BigDecimalJsonAdapter
-import br.com.programadorthi.base.exception.CrashlyticsConsumer
 import br.com.programadorthi.base.network.NetworkHandler
 import br.com.programadorthi.base.network.NetworkHandlerImpl
 import br.com.programadorthi.base.network.RemoteExecutor
 import br.com.programadorthi.base.network.RemoteExecutorImpl
-import br.com.programadorthi.base.utils.Constants
+import br.com.programadorthi.base.utils.ANDROID_SCHEDULER
+import br.com.programadorthi.base.utils.IO_SCHEDULER
 import com.squareup.moshi.Moshi
 import dagger.Module
 import dagger.Provides
@@ -22,12 +23,12 @@ import javax.inject.Singleton
 object ApplicationModule {
 
     @Provides
-    @Named(Constants.ANDROID_SCHEDULER)
+    @Named(ANDROID_SCHEDULER)
     @JvmStatic
     fun provideAndroidScheduler(): Scheduler = Schedulers.computation()
 
     @Provides
-    @Named(Constants.IO_SCHEDULER)
+    @Named(IO_SCHEDULER)
     @JvmStatic
     fun provideIOScheduler(): Scheduler = Schedulers.io()
 
@@ -42,10 +43,10 @@ object ApplicationModule {
     @Provides
     @JvmStatic
     fun provideRemoteExecutor(
-        crashlyticsConsumer: Consumer<Throwable>,
+        crashConsumer: Consumer<Throwable>,
         networkHandler: NetworkHandler,
-        @Named(Constants.IO_SCHEDULER) scheduler: Scheduler
-    ): RemoteExecutor = RemoteExecutorImpl(crashlyticsConsumer, networkHandler, scheduler)
+        @Named(IO_SCHEDULER) scheduler: Scheduler
+    ): RemoteExecutor = RemoteExecutorImpl(crashConsumer, networkHandler, scheduler)
 
     @Provides
     @Singleton

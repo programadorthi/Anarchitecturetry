@@ -8,7 +8,7 @@ import io.reactivex.functions.Consumer
 import io.reactivex.functions.Function
 
 class RemoteExecutorImpl(
-    private val crashlyticsConsumer: Consumer<Throwable>,
+    private val crashConsumer: Consumer<Throwable>,
     private val networkHandler: NetworkHandler,
     private val scheduler: Scheduler
 ) : RemoteExecutor {
@@ -25,7 +25,7 @@ class RemoteExecutorImpl(
             false -> Completable.error(BaseException.NoInternetConnectionException())
             true -> body()
                 .subscribeOn(scheduler)
-                .doOnError(crashlyticsConsumer)
+                .doOnError(crashConsumer)
         }
     }
 
@@ -41,7 +41,7 @@ class RemoteExecutorImpl(
             false -> Single.error(BaseException.NoInternetConnectionException())
             true -> body()
                 .subscribeOn(scheduler)
-                .doOnError(crashlyticsConsumer)
+                .doOnError(crashConsumer)
         }
     }
 
@@ -62,7 +62,7 @@ class RemoteExecutorImpl(
             true -> body()
                 .subscribeOn(scheduler)
                 .map(mapper)
-                .doOnError(crashlyticsConsumer)
+                .doOnError(crashConsumer)
         }
     }
 }
