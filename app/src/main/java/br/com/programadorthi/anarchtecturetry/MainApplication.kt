@@ -28,6 +28,7 @@ class MainApplication : Application(), HasActivityInjector {
             .context(this@MainApplication)
             .networkModule(NetworkModule)
             .build()
+            .inject(this@MainApplication)
     }
 
     private fun initTimber() {

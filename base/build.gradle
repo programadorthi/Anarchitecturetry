@@ -55,9 +55,12 @@ dependencies {
 
     // Architecture components
     implementation(rootProject.ext.commonDependencies.lifecycleExtensions) {
+        exclude group: 'androidx.legacy', module: 'legacy-support-core-ui'
+        exclude group: 'androidx.legacy', module: 'legacy-support-core-utils'
         exclude group: 'androidx.lifecycle', module: 'lifecycle-process'
         exclude group: 'androidx.lifecycle', module: 'lifecycle-runtime'
         exclude group: 'androidx.lifecycle', module: 'lifecycle-service'
+        exclude group: 'androidx.loader', module: 'loader'
     }
 
     // Kotlin
