@@ -3,14 +3,19 @@ package br.com.programadorthi.blockchain.presentation
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import br.com.programadorthi.base.presentation.TextFormatter
 import br.com.programadorthi.base.presentation.ViewActionState
 import br.com.programadorthi.blockchain.domain.BlockchainInteractor
 import io.reactivex.Observable
 import io.reactivex.Scheduler
 import io.reactivex.disposables.CompositeDisposable
+import java.math.BigDecimal
+import java.util.*
 
 class BlockchainViewModel(
     private val blockchainInteractor: BlockchainInteractor,
+    private val dateFormatter: TextFormatter<Date>,
+    private val moneyFormatter: TextFormatter<BigDecimal>,
     private val scheduler: Scheduler
 ) : ViewModel() {
 
@@ -85,8 +90,8 @@ class BlockchainViewModel(
             .map { result ->
                 ViewActionState.complete(
                     BlockchainViewData(
-                        date = result.date,
-                        value = result.value
+                        date = dateFormatter.format(result.date),
+                        value = moneyFormatter.format(result.value)
                     )
                 )
             }
@@ -104,8 +109,8 @@ class BlockchainViewModel(
             .flatMapIterable { item -> item }
             .map { result ->
                 BlockchainViewData(
-                    date = result.date,
-                    value = result.value
+                    date = dateFormatter.format(result.date),
+                    value = moneyFormatter.format(result.value)
                 )
             }
             .toList()

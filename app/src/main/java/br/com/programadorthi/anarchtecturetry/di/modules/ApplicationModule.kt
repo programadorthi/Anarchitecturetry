@@ -2,13 +2,18 @@ package br.com.programadorthi.anarchtecturetry.di.modules
 
 import android.content.Context
 import br.com.programadorthi.anarchtecturetry.firebase.CrashlyticsConsumer
+import br.com.programadorthi.anarchtecturetry.formatter.DateFormatter
+import br.com.programadorthi.anarchtecturetry.formatter.MoneyFormatter
 import br.com.programadorthi.base.adapter.BigDecimalJsonAdapter
 import br.com.programadorthi.base.network.NetworkHandler
 import br.com.programadorthi.base.network.NetworkHandlerImpl
 import br.com.programadorthi.base.network.RemoteExecutor
 import br.com.programadorthi.base.network.RemoteExecutorImpl
+import br.com.programadorthi.base.presentation.TextFormatter
 import br.com.programadorthi.base.utils.ANDROID_SCHEDULER
+import br.com.programadorthi.base.utils.DATE_FORMATTER
 import br.com.programadorthi.base.utils.IO_SCHEDULER
+import br.com.programadorthi.base.utils.MONEY_FORMATTER
 import com.squareup.moshi.Moshi
 import dagger.Module
 import dagger.Provides
@@ -16,6 +21,7 @@ import io.reactivex.Scheduler
 import io.reactivex.functions.Consumer
 import io.reactivex.schedulers.Schedulers
 import java.math.BigDecimal
+import java.util.*
 import javax.inject.Named
 import javax.inject.Singleton
 
@@ -31,6 +37,16 @@ object ApplicationModule {
     @Named(IO_SCHEDULER)
     @JvmStatic
     fun provideIOScheduler(): Scheduler = Schedulers.io()
+
+    @Provides
+    @Named(DATE_FORMATTER)
+    @JvmStatic
+    fun provideDateFormatter(): TextFormatter<Date> = DateFormatter()
+
+    @Provides
+    @Named(MONEY_FORMATTER)
+    @JvmStatic
+    fun provideMoneyFormatter(): TextFormatter<BigDecimal> = MoneyFormatter()
 
     @Provides
     @JvmStatic

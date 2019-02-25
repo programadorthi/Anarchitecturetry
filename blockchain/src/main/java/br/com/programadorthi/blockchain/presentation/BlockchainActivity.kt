@@ -4,9 +4,11 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import br.com.programadorthi.base.extension.createViewModel
 import br.com.programadorthi.base.extension.observe
+import br.com.programadorthi.base.extension.setVisible
 import br.com.programadorthi.base.presentation.ViewActionState
 import br.com.programadorthi.blockchain.R
 import dagger.android.AndroidInjection
+import kotlinx.android.synthetic.main.activity_blockchain.*
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -15,11 +17,17 @@ class BlockchainActivity : AppCompatActivity() {
     @Inject
     lateinit var blockchainViewModel: BlockchainViewModel
 
+    private val blockchainAdapter = BlockchainAdapter()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         AndroidInjection.inject(this)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_blockchain)
 
+        initViewModel()
+    }
+
+    private fun initViewModel() {
         createViewModel(blockchainViewModel) {
             observe(currentMarketPrice, ::updateCurrentMarketPrice)
             observe(marketPrices, ::updateMarketPrices)
@@ -32,25 +40,35 @@ class BlockchainActivity : AppCompatActivity() {
     private fun updateCurrentMarketPrice(state: ViewActionState<BlockchainViewData>?) {
         when (state) {
             is ViewActionState.Complete -> {
-                Timber.d(">>>>>> Current Complete: ${state.result}")
+                val viewData = state.result
+                currentMarketPriceValue.text = viewData.value
+                currentMarketPriceDate.text = viewData.date
             }
             is ViewActionState.Error -> {
                 Timber.d(state.error, ">>>>>> Current Error")
             }
         }
-        Timber.d(">>>> Current Loading? ${state is ViewActionState.Loading}")
+        currentMarketPriceValue.setVisible(state !is ViewActionState.Loading)
+        currentMarketPriceDate.setVisible(state !is ViewActionState.Loading)
+        currentMarketPricesProgressBar.setVisible(state is ViewActionState.Loading)
     }
 
     private fun updateMarketPrices(state: ViewActionState<List<BlockchainViewData>>?) {
         when (state) {
             is ViewActionState.Complete -> {
-                Timber.d(">>>>>> Prices Complete: ${state.result}")
+                blockchainAdapter.changeDataSet(state.result)
             }
             is ViewActionState.Error -> {
                 Timber.d(state.error, ">>>>>> Prices Error")
             }
         }
-        Timber.d(">>>> Prices Loading? ${state is ViewActionState.Loading}")
+        marketPricesRecyclerView.setVisible(
+            state is ViewActionState.Complete && state.result.isNotEmpty()
+        )
+        marketPricesEmptyList.setVisible(
+            state is ViewActionState.Complete && state.result.isEmpty()
+        )
+        marketPricesProgressBar.setVisible(state is ViewActionState.Loading)
     }
 
 }

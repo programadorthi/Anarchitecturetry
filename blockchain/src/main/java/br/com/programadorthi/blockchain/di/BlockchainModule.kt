@@ -2,7 +2,10 @@ package br.com.programadorthi.blockchain.di
 
 import br.com.programadorthi.base.network.BaseMapper
 import br.com.programadorthi.base.network.RemoteExecutor
+import br.com.programadorthi.base.presentation.TextFormatter
 import br.com.programadorthi.base.utils.ANDROID_SCHEDULER
+import br.com.programadorthi.base.utils.DATE_FORMATTER
+import br.com.programadorthi.base.utils.MONEY_FORMATTER
 import br.com.programadorthi.blockchain.data.BlockchainRepositoryImpl
 import br.com.programadorthi.blockchain.data.local.BlockchainDao
 import br.com.programadorthi.blockchain.data.local.BlockchainLocalRepository
@@ -17,6 +20,8 @@ import dagger.Module
 import dagger.Provides
 import io.reactivex.Scheduler
 import retrofit2.Retrofit
+import java.math.BigDecimal
+import java.util.*
 import javax.inject.Named
 
 @Module
@@ -75,7 +80,10 @@ object BlockchainModule {
     @JvmStatic
     fun provideBlockchainViewModel(
         blockchainInteractor: BlockchainInteractor,
+        @Named(DATE_FORMATTER) dateFormatter: TextFormatter<Date>,
+        @Named(MONEY_FORMATTER) moneyFormatter: TextFormatter<BigDecimal>,
         @Named(ANDROID_SCHEDULER) scheduler: Scheduler
-    ): BlockchainViewModel = BlockchainViewModel(blockchainInteractor, scheduler)
+    ): BlockchainViewModel =
+        BlockchainViewModel(blockchainInteractor, dateFormatter, moneyFormatter, scheduler)
 
 }
