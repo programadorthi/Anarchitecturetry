@@ -8,6 +8,7 @@ import br.com.programadorthi.base.presentation.ViewActionState
 import br.com.programadorthi.blockchain.domain.BlockchainInteractor
 import io.reactivex.Observable
 import io.reactivex.Scheduler
+import io.reactivex.Single
 import io.reactivex.disposables.CompositeDisposable
 import java.math.BigDecimal
 import java.util.*
@@ -106,15 +107,22 @@ class BlockchainViewModel(
     fun getLocalMarketPrices() {
         val disposable = blockchainInteractor
             .getAllMarketPrices()
-            .flatMapIterable { item -> item }
-            .map { result ->
-                BlockchainViewData(
-                    date = dateFormatter.format(result.date),
-                    value = moneyFormatter.format(result.value)
-                )
+            .flatMapSingle { result ->
+                if (result.isEmpty()) {
+                    val complete = ViewActionState.complete(emptyList<BlockchainViewData>())
+                    return@flatMapSingle Single.just(complete)
+                }
+                return@flatMapSingle Observable
+                    .fromIterable(result)
+                    .map { item ->
+                        BlockchainViewData(
+                            date = dateFormatter.format(item.date),
+                            value = moneyFormatter.format(item.value)
+                        )
+                    }
+                    .toList()
+                    .map { list -> ViewActionState.complete(list) }
             }
-            .toList()
-            .map { resultList -> ViewActionState.complete(resultList) }
             .onErrorReturn { err -> ViewActionState.failure(err, emptyList()) }
             .observeOn(scheduler)
             .doOnSubscribe { mutableMarketPrices.value = ViewActionState.loading() }

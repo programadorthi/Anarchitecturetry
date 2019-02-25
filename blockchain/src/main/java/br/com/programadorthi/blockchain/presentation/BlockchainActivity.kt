@@ -1,7 +1,11 @@
 package br.com.programadorthi.blockchain.presentation
 
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import br.com.programadorthi.base.extension.createViewModel
 import br.com.programadorthi.base.extension.observe
 import br.com.programadorthi.base.extension.setVisible
@@ -24,7 +28,34 @@ class BlockchainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_blockchain)
 
+        initRecyclerView()
         initViewModel()
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+        val itemId = item?.itemId ?: return false
+        if (itemId == R.id.refreshMenu) {
+            blockchainViewModel.apply {
+                fetchCurrentMarketPrice()
+                fetchAllMarketPrices()
+            }
+            return true
+        }
+        return super.onOptionsItemSelected(item)
+    }
+
+    private fun initRecyclerView() {
+        val linearLayoutManager =
+            LinearLayoutManager(this@BlockchainActivity, RecyclerView.VERTICAL, false)
+        marketPricesRecyclerView.apply {
+            layoutManager = linearLayoutManager
+            adapter = blockchainAdapter
+        }
     }
 
     private fun initViewModel() {
