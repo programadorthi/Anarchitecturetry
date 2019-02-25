@@ -50,10 +50,11 @@ class BlockchainViewModel(
                 blockchainInteractor
                     .fetchCurrentMarketPrice()
                     .observeOn(scheduler)
-                    .doOnError { err ->
+                    .onErrorComplete { err ->
                         mutableCurrentMarketPrice.postValue(
                             ViewActionState.failure(err, currentValue)
                         )
+                        return@onErrorComplete true
                     }
             }.subscribe()
 
@@ -64,7 +65,7 @@ class BlockchainViewModel(
         val disposable = Observable
             .just(mutableMarketPrices.value)
             .map { currentValue ->
-                when (currentValue) {
+                return@map when (currentValue) {
                     is ViewActionState.Complete -> currentValue.result
                     is ViewActionState.Error -> currentValue.previousData
                     else -> emptyList()
@@ -75,10 +76,11 @@ class BlockchainViewModel(
                 blockchainInteractor
                     .fetchAllMarketPrices()
                     .observeOn(scheduler)
-                    .doOnError { err ->
+                    .onErrorComplete { err ->
                         mutableMarketPrices.postValue(
                             ViewActionState.failure(err, currentValue)
                         )
+                        return@onErrorComplete true
                     }
             }.subscribe()
 
