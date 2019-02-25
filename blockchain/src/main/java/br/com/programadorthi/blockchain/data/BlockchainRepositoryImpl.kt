@@ -1,6 +1,5 @@
 package br.com.programadorthi.blockchain.data
 
-import br.com.programadorthi.base.model.Resource
 import br.com.programadorthi.blockchain.data.local.BlockchainLocalRepository
 import br.com.programadorthi.blockchain.data.remote.BlockchainRemoteRepository
 import br.com.programadorthi.blockchain.domain.Blockchain
@@ -13,10 +12,10 @@ class BlockchainRepositoryImpl(
     private val remoteRepository: BlockchainRemoteRepository
 ) : BlockchainRepository {
 
-    override fun getCurrentMarketPrice(): Flowable<Resource<Blockchain>> =
+    override fun getCurrentMarketPrice(): Flowable<Blockchain> =
         localRepository.getCurrentMarketPrice()
 
-    override fun getAllMarketPrices(): Flowable<Resource<List<Blockchain>>> =
+    override fun getAllMarketPrices(): Flowable<List<Blockchain>> =
         localRepository.getAllMarketPrices()
 
     override fun fetchCurrentMarketPrice(): Completable {

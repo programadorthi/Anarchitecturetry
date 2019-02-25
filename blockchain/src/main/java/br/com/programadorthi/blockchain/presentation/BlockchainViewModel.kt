@@ -3,9 +3,7 @@ package br.com.programadorthi.blockchain.presentation
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import br.com.programadorthi.base.model.Resource
 import br.com.programadorthi.base.presentation.ViewActionState
-import br.com.programadorthi.blockchain.domain.Blockchain
 import br.com.programadorthi.blockchain.domain.BlockchainInteractor
 import io.reactivex.Observable
 import io.reactivex.Scheduler
@@ -16,12 +14,12 @@ class BlockchainViewModel(
     private val scheduler: Scheduler
 ) : ViewModel() {
 
-    private val mutableCurrentMarketPrice = MutableLiveData<ViewActionState<Blockchain>>()
-    val currentMarketPrice: LiveData<ViewActionState<Blockchain>>
+    private val mutableCurrentMarketPrice = MutableLiveData<ViewActionState<BlockchainViewData>>()
+    val currentMarketPrice: LiveData<ViewActionState<BlockchainViewData>>
         get() = mutableCurrentMarketPrice
 
-    private val mutableMarketPrices = MutableLiveData<ViewActionState<List<Blockchain>>>()
-    val marketPrices: LiveData<ViewActionState<List<Blockchain>>>
+    private val mutableMarketPrices = MutableLiveData<ViewActionState<List<BlockchainViewData>>>()
+    val marketPrices: LiveData<ViewActionState<List<BlockchainViewData>>>
         get() = mutableMarketPrices
 
     private val compositeDisposable = CompositeDisposable()
@@ -38,7 +36,7 @@ class BlockchainViewModel(
                 when (currentValue) {
                     is ViewActionState.Complete -> currentValue.result
                     is ViewActionState.Error -> currentValue.previousData
-                    else -> Blockchain.EMPTY
+                    else -> BlockchainViewData.EMPTY
                 }
             }
             .doOnNext { mutableCurrentMarketPrice.value = ViewActionState.loading() }
@@ -81,15 +79,18 @@ class BlockchainViewModel(
         compositeDisposable.add(disposable)
     }
 
-    fun getCurrentMarketPrice() {
+    fun getLocalMarketPrice() {
         val disposable = blockchainInteractor
             .getCurrentMarketPrice()
             .map { result ->
-                when (result) {
-                    is Resource.Error -> ViewActionState.failure(result.error, result.previousData)
-                    is Resource.Success -> ViewActionState.complete(result.data)
-                }
+                ViewActionState.complete(
+                    BlockchainViewData(
+                        date = result.date,
+                        value = result.value
+                    )
+                )
             }
+            .onErrorReturn { err -> ViewActionState.failure(err, BlockchainViewData.EMPTY) }
             .observeOn(scheduler)
             .doOnSubscribe { mutableCurrentMarketPrice.value = ViewActionState.loading() }
             .subscribe(mutableCurrentMarketPrice::postValue)
@@ -97,15 +98,19 @@ class BlockchainViewModel(
         compositeDisposable.add(disposable)
     }
 
-    fun getAllMarketPrices() {
+    fun getLocalMarketPrices() {
         val disposable = blockchainInteractor
             .getAllMarketPrices()
+            .flatMapIterable { item -> item }
             .map { result ->
-                when (result) {
-                    is Resource.Error -> ViewActionState.failure(result.error, result.previousData)
-                    is Resource.Success -> ViewActionState.complete(result.data)
-                }
+                BlockchainViewData(
+                    date = result.date,
+                    value = result.value
+                )
             }
+            .toList()
+            .map { resultList -> ViewActionState.complete(resultList) }
+            .onErrorReturn { err -> ViewActionState.failure(err, emptyList()) }
             .observeOn(scheduler)
             .doOnSubscribe { mutableMarketPrices.value = ViewActionState.loading() }
             .subscribe(mutableMarketPrices::postValue)

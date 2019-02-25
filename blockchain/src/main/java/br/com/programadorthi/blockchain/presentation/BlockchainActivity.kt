@@ -6,7 +6,6 @@ import br.com.programadorthi.base.extension.createViewModel
 import br.com.programadorthi.base.extension.observe
 import br.com.programadorthi.base.presentation.ViewActionState
 import br.com.programadorthi.blockchain.R
-import br.com.programadorthi.blockchain.domain.Blockchain
 import dagger.android.AndroidInjection
 import timber.log.Timber
 import javax.inject.Inject
@@ -25,12 +24,12 @@ class BlockchainActivity : AppCompatActivity() {
             observe(currentMarketPrice, ::updateCurrentMarketPrice)
             observe(marketPrices, ::updateMarketPrices)
         }.apply {
-            getCurrentMarketPrice()
-            getAllMarketPrices()
+            getLocalMarketPrice()
+            getLocalMarketPrices()
         }
     }
 
-    private fun updateCurrentMarketPrice(state: ViewActionState<Blockchain>?) {
+    private fun updateCurrentMarketPrice(state: ViewActionState<BlockchainViewData>?) {
         when (state) {
             is ViewActionState.Complete -> {
                 Timber.d(">>>>>> Current Complete: ${state.result}")
@@ -42,7 +41,7 @@ class BlockchainActivity : AppCompatActivity() {
         Timber.d(">>>> Current Loading? ${state is ViewActionState.Loading}")
     }
 
-    private fun updateMarketPrices(state: ViewActionState<List<Blockchain>>?) {
+    private fun updateMarketPrices(state: ViewActionState<List<BlockchainViewData>>?) {
         when (state) {
             is ViewActionState.Complete -> {
                 Timber.d(">>>>>> Prices Complete: ${state.result}")
