@@ -1,11 +1,11 @@
 package br.com.programadorthi.blockchain.data.remote
 
-import br.com.programadorthi.base.network.BaseMapper
+import br.com.programadorthi.base.network.BaseRemoteMapper
 import br.com.programadorthi.blockchain.domain.Blockchain
 import java.util.*
 
 class BlockchainCurrentValueMapper :
-    BaseMapper<BlockchainCurrentValueRaw, Blockchain>() {
+    BaseRemoteMapper<BlockchainCurrentValueRaw, Blockchain>() {
 
     override fun checkParams(raw: BlockchainCurrentValueRaw, missingFields: MutableList<String>) {
         if (raw.timestamp == null) {

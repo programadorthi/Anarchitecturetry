@@ -1,12 +1,12 @@
 package br.com.programadorthi.blockchain.data.remote
 
-import br.com.programadorthi.base.network.BaseMapper
+import br.com.programadorthi.base.network.BaseRemoteMapper
 import br.com.programadorthi.blockchain.domain.Blockchain
 import java.math.BigDecimal
 import java.util.*
 
 class BlockchainMapper :
-    BaseMapper<BlockchainResponseRaw, List<Blockchain>>() {
+    BaseRemoteMapper<BlockchainResponseRaw, List<Blockchain>>() {
 
     override fun checkParams(raw: BlockchainResponseRaw, missingFields: MutableList<String>) {
 

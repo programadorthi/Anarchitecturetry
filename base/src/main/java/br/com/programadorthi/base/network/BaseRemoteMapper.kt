@@ -9,7 +9,7 @@ import io.reactivex.functions.Function
  * @param Raw The result from server
  * @param Model The feature model to create from Raw
  */
-abstract class BaseMapper<Raw, Model> : Function<Raw, Model> {
+abstract class BaseRemoteMapper<Raw, Model> : Function<Raw, Model> {
 
     @Throws(BaseException.EssentialParamMissingException::class)
     override fun apply(raw: Raw): Model {

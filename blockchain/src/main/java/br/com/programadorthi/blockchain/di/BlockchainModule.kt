@@ -1,6 +1,6 @@
 package br.com.programadorthi.blockchain.di
 
-import br.com.programadorthi.base.network.BaseMapper
+import br.com.programadorthi.base.network.BaseRemoteMapper
 import br.com.programadorthi.base.network.RemoteExecutor
 import br.com.programadorthi.base.presentation.TextFormatter
 import br.com.programadorthi.base.utils.ANDROID_SCHEDULER
@@ -29,12 +29,12 @@ object BlockchainModule {
 
     @Provides
     @JvmStatic
-    fun provideBlockchainCurrentValueMapper(): BaseMapper<BlockchainCurrentValueRaw, Blockchain> =
+    fun provideBlockchainCurrentValueMapper(): BaseRemoteMapper<BlockchainCurrentValueRaw, Blockchain> =
         BlockchainCurrentValueMapper()
 
     @Provides
     @JvmStatic
-    fun provideBlockchainMapper(): BaseMapper<BlockchainResponseRaw, List<Blockchain>> =
+    fun provideBlockchainMapper(): BaseRemoteMapper<BlockchainResponseRaw, List<Blockchain>> =
         BlockchainMapper()
 
     @Provides
@@ -51,8 +51,8 @@ object BlockchainModule {
     @Provides
     @JvmStatic
     fun provideBlockchainRemoteRepository(
-        blockchainCurrentValueMapper: BaseMapper<BlockchainCurrentValueRaw, Blockchain>,
-        blockchainMapper: BaseMapper<BlockchainResponseRaw, List<Blockchain>>,
+        blockchainCurrentValueMapper: BaseRemoteMapper<BlockchainCurrentValueRaw, Blockchain>,
+        blockchainMapper: BaseRemoteMapper<BlockchainResponseRaw, List<Blockchain>>,
         blockchainService: BlockchainService,
         remoteExecutor: RemoteExecutor
     ): BlockchainRemoteRepository = BlockchainRemoteRepositoryImpl(
