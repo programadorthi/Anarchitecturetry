@@ -4,7 +4,7 @@ import br.com.programadorthi.base.remote.BaseRemoteMapper
 import br.com.programadorthi.blockchain.domain.Blockchain
 import java.util.*
 
-class BlockchainCurrentValueMapper :
+class BlockchainCurrentValueRemoteMapper :
     BaseRemoteMapper<BlockchainCurrentValueRaw, Blockchain>() {
 
     override fun checkParams(raw: BlockchainCurrentValueRaw, missingFields: MutableList<String>) {

@@ -1,15 +1,13 @@
 package br.com.programadorthi.blockchain.di
 
+import br.com.programadorthi.base.presentation.TextFormatter
 import br.com.programadorthi.base.remote.BaseRemoteMapper
 import br.com.programadorthi.base.remote.RemoteExecutor
-import br.com.programadorthi.base.presentation.TextFormatter
 import br.com.programadorthi.base.utils.ANDROID_SCHEDULER
 import br.com.programadorthi.base.utils.DATE_FORMATTER
 import br.com.programadorthi.base.utils.MONEY_FORMATTER
 import br.com.programadorthi.blockchain.data.BlockchainRepositoryImpl
-import br.com.programadorthi.blockchain.data.local.BlockchainDao
-import br.com.programadorthi.blockchain.data.local.BlockchainLocalRepository
-import br.com.programadorthi.blockchain.data.local.BlockchainLocalRepositoryImpl
+import br.com.programadorthi.blockchain.data.local.*
 import br.com.programadorthi.blockchain.data.remote.*
 import br.com.programadorthi.blockchain.domain.Blockchain
 import br.com.programadorthi.blockchain.domain.BlockchainInteractor
@@ -19,6 +17,7 @@ import br.com.programadorthi.blockchain.presentation.BlockchainViewModel
 import dagger.Module
 import dagger.Provides
 import io.reactivex.Scheduler
+import io.reactivex.functions.Function
 import retrofit2.Retrofit
 import java.math.BigDecimal
 import java.util.*
@@ -29,13 +28,23 @@ object BlockchainModule {
 
     @Provides
     @JvmStatic
-    fun provideBlockchainCurrentValueMapper(): BaseRemoteMapper<BlockchainCurrentValueRaw, Blockchain> =
-        BlockchainCurrentValueMapper()
+    fun provideBlockchainCurrentValueLocalMapper(): Function<List<BlockchainCurrentValueEntity>, Blockchain> =
+        BlockchainCurrentValueLocalMapper()
 
     @Provides
     @JvmStatic
-    fun provideBlockchainMapper(): BaseRemoteMapper<BlockchainResponseRaw, List<Blockchain>> =
-        BlockchainMapper()
+    fun provideBlockchainLocalMapper(): Function<List<BlockchainEntity>, List<Blockchain>> =
+        BlockchainLocalMapper()
+
+    @Provides
+    @JvmStatic
+    fun provideBlockchainCurrentValueRemoteMapper(): BaseRemoteMapper<BlockchainCurrentValueRaw, Blockchain> =
+        BlockchainCurrentValueRemoteMapper()
+
+    @Provides
+    @JvmStatic
+    fun provideBlockchainRemoteMapper(): BaseRemoteMapper<BlockchainResponseRaw, List<Blockchain>> =
+        BlockchainRemoteMapper()
 
     @Provides
     @JvmStatic
@@ -45,8 +54,14 @@ object BlockchainModule {
     @Provides
     @JvmStatic
     fun provideBlockchainLocalRepository(
-        blockchainDao: BlockchainDao
-    ): BlockchainLocalRepository = BlockchainLocalRepositoryImpl(blockchainDao)
+        blockchainDao: BlockchainDao,
+        blockchainCurrentValueLocalMapper: Function<List<BlockchainCurrentValueEntity>, Blockchain>,
+        blockchainLocalMapper: Function<List<BlockchainEntity>, List<Blockchain>>
+    ): BlockchainLocalRepository = BlockchainLocalRepositoryImpl(
+        blockchainDao,
+        blockchainCurrentValueLocalMapper,
+        blockchainLocalMapper
+    )
 
     @Provides
     @JvmStatic

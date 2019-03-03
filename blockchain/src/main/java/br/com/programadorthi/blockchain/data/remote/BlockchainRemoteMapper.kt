@@ -5,7 +5,7 @@ import br.com.programadorthi.blockchain.domain.Blockchain
 import java.math.BigDecimal
 import java.util.*
 
-class BlockchainMapper :
+class BlockchainRemoteMapper :
     BaseRemoteMapper<BlockchainResponseRaw, List<Blockchain>>() {
 
     override fun checkParams(raw: BlockchainResponseRaw, missingFields: MutableList<String>) {
