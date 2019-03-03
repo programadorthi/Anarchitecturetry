@@ -1,4 +1,4 @@
-package br.com.programadorthi.base.network
+package br.com.programadorthi.base.remote
 
 interface NetworkHandler {
 

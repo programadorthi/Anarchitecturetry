@@ -1,4 +1,4 @@
-package br.com.programadorthi.base.network
+package br.com.programadorthi.base.remote
 
 import android.content.Context
 import android.net.ConnectivityManager

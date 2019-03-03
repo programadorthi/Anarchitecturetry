@@ -1,4 +1,4 @@
-package br.com.programadorthi.base.network
+package br.com.programadorthi.base.remote
 
 import io.reactivex.Completable
 import io.reactivex.Single

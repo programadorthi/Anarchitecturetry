@@ -5,10 +5,10 @@ import br.com.programadorthi.anarchtecturetry.firebase.CrashlyticsConsumer
 import br.com.programadorthi.anarchtecturetry.formatter.DateFormatter
 import br.com.programadorthi.anarchtecturetry.formatter.MoneyFormatter
 import br.com.programadorthi.base.adapter.BigDecimalJsonAdapter
-import br.com.programadorthi.base.network.NetworkHandler
-import br.com.programadorthi.base.network.NetworkHandlerImpl
-import br.com.programadorthi.base.network.RemoteExecutor
-import br.com.programadorthi.base.network.RemoteExecutorImpl
+import br.com.programadorthi.base.remote.NetworkHandler
+import br.com.programadorthi.base.remote.NetworkHandlerImpl
+import br.com.programadorthi.base.remote.RemoteExecutor
+import br.com.programadorthi.base.remote.RemoteExecutorImpl
 import br.com.programadorthi.base.presentation.TextFormatter
 import br.com.programadorthi.base.utils.ANDROID_SCHEDULER
 import br.com.programadorthi.base.utils.DATE_FORMATTER

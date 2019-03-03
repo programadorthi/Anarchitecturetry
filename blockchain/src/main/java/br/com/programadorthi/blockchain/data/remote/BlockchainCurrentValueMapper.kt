@@ -1,6 +1,6 @@
 package br.com.programadorthi.blockchain.data.remote
 
-import br.com.programadorthi.base.network.BaseRemoteMapper
+import br.com.programadorthi.base.remote.BaseRemoteMapper
 import br.com.programadorthi.blockchain.domain.Blockchain
 import java.util.*
 

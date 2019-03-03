@@ -1,7 +1,7 @@
 package br.com.programadorthi.blockchain.di
 
-import br.com.programadorthi.base.network.BaseRemoteMapper
-import br.com.programadorthi.base.network.RemoteExecutor
+import br.com.programadorthi.base.remote.BaseRemoteMapper
+import br.com.programadorthi.base.remote.RemoteExecutor
 import br.com.programadorthi.base.presentation.TextFormatter
 import br.com.programadorthi.base.utils.ANDROID_SCHEDULER
 import br.com.programadorthi.base.utils.DATE_FORMATTER

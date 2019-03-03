@@ -1,4 +1,4 @@
-package br.com.programadorthi.base.network
+package br.com.programadorthi.base.remote
 
 import br.com.programadorthi.base.exception.BaseException
 import io.reactivex.functions.Function
