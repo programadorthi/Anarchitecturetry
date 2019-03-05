@@ -72,4 +72,9 @@ dependencies {
     // RxJava 2
     implementation rootProject.ext.commonDependencies.rxJava2
 
+    // Unit Tests
+    testImplementation rootProject.ext.testingDependencies.junit
+    testImplementation rootProject.ext.testingDependencies.mockk
+    testImplementation rootProject.ext.testingDependencies.assertj
+
 }

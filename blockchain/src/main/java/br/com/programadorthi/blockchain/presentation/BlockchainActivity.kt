@@ -85,19 +85,20 @@ class BlockchainActivity : AppCompatActivity() {
     }
 
     private fun updateMarketPrices(state: ViewActionState<List<BlockchainViewData>>?) {
+        var result = emptyList<BlockchainViewData>()
         when (state) {
             is ViewActionState.Complete -> {
                 blockchainAdapter.changeDataSet(state.result)
+                result = state.result
             }
             is ViewActionState.Error -> {
                 Timber.d(state.error, ">>>>>> Prices Error")
+                result = state.previousData
             }
         }
-        marketPricesRecyclerView.setVisible(
-            state is ViewActionState.Complete && state.result.isNotEmpty()
-        )
+        marketPricesRecyclerView.setVisible(result.isNotEmpty())
         marketPricesEmptyList.setVisible(
-            state is ViewActionState.Complete && state.result.isEmpty()
+            state !is ViewActionState.Loading && result.isEmpty()
         )
         marketPricesProgressBar.setVisible(state is ViewActionState.Loading)
     }
