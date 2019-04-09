@@ -13,15 +13,17 @@ class BlockchainRemoteRepositoryImpl(
 ) : BlockchainRemoteRepository {
 
     override fun getCurrentMarketPrice(): Single<Blockchain> {
-        return remoteExecutor.checkConnectionAndThenMapper(blockchainCurrentValueMapper) {
-            blockchainService.getCurrentMarketPrice()
-        }
+        return remoteExecutor.checkConnectionAndThenMapper(
+            mapper = blockchainCurrentValueMapper,
+            action = blockchainService.getCurrentMarketPrice()
+        )
     }
 
     override fun getAllMarketPrices(): Single<List<Blockchain>> {
-        return remoteExecutor.checkConnectionAndThenMapper(blockchainMapper) {
-            blockchainService.getMarketPrices()
-        }
+        return remoteExecutor.checkConnectionAndThenMapper(
+            mapper = blockchainMapper,
+            action = blockchainService.getMarketPrices()
+        )
     }
 
 }

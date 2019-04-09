@@ -6,11 +6,9 @@ import br.com.programadorthi.blockchain.domain.Blockchain
 import io.mockk.every
 import io.mockk.mockk
 import io.reactivex.Single
-import org.assertj.core.api.Assertions
+import io.reactivex.functions.Function
 import org.junit.Before
 import org.junit.Test
-import java.math.BigDecimal
-import java.util.*
 
 class BlockchainRemoteRepositoryImplTest {
 
@@ -22,21 +20,31 @@ class BlockchainRemoteRepositoryImplTest {
 
     private val remoteExecutor = mockk<RemoteExecutor>()
 
+    private val raw = BlockchainCurrentValueRaw(
+        timestamp = null,
+        value = null
+    )
+
     private lateinit var blockchainRemoteRepository: BlockchainRemoteRepository
 
     @Before
     fun setUp() {
+
+        every { blockchainService.getCurrentMarketPrice() } returns Single.just(raw)
+
         blockchainRemoteRepository = BlockchainRemoteRepositoryImpl(
             blockchainCurrentValueMapper, blockchainMapper, blockchainService, remoteExecutor
         )
     }
 
-    /*@Test
+    @Test
     fun `should throw NoInternetConnectionException when there is no internet connection`() {
+
         every {
-            remoteExecutor.checkConnectionAndThenMapper(blockchainCurrentValueMapper) {
-                blockchainService.getCurrentMarketPrice()
-            }
+            remoteExecutor.checkConnectionAndThenMapper(
+                mapper = any<Function<BlockchainCurrentValueRaw, Blockchain>>(),
+                action = any()
+            )
         } returns Single.error(BaseException.NoInternetConnectionException())
 
         val testObserver = blockchainRemoteRepository.getCurrentMarketPrice().test()
@@ -51,18 +59,16 @@ class BlockchainRemoteRepositoryImplTest {
 
     @Test
     fun `should throw EssentialParamMissingException when all API call current mar response is invalid`() {
-        val raw = BlockchainCurrentValueRaw(
-            timestamp = null,
-            value = null
-        )
-
-        every { blockchainService.getCurrentMarketPrice() } returns Single.just(raw)
 
         every {
-            remoteExecutor.checkConnectionAndThenMapper(blockchainCurrentValueMapper) {
-                blockchainService.getCurrentMarketPrice()
-            }
-        } returns Single.just(Blockchain.EMPTY)
+            remoteExecutor.checkConnectionAndThenMapper(
+                mapper = any<Function<BlockchainCurrentValueRaw, Blockchain>>(),
+                action = any()
+            )
+        } returns Single.error(BaseException.EssentialParamMissingException(
+            missingParam = listOf("field").joinToString(prefix = "[", postfix = "]"),
+            rawObject = raw)
+        )
 
         val testObserver = blockchainRemoteRepository.getCurrentMarketPrice().test()
 
@@ -71,8 +77,8 @@ class BlockchainRemoteRepositoryImplTest {
         testObserver
             .assertNotComplete()
             .assertError(BaseException.EssentialParamMissingException::class.java)
-            .assertErrorMessage("[timestamp, market_price_usd] are missing in received object: $raw")
+            .assertErrorMessage("[field] are missing in received object: $raw")
 
-    }*/
+    }
 
 }

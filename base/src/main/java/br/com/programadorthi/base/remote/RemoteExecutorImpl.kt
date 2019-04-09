@@ -16,14 +16,14 @@ class RemoteExecutorImpl(
     /**
      * Check for internet connection and execute the body function or emit an exception
      *
-     * @param body Another function to execute when there is internet connection
+     * @param action Another function to execute when there is internet connection
      * @return An [Completable] with [BaseException.NoInternetConnectionException] when there is no internet
      * connection or with the body function result
      */
-    override fun checkConnectionAndThenComplete(body: () -> Completable): Completable {
+    override fun checkConnectionAndThenComplete(action: Completable): Completable {
         return when (networkHandler.hasInternetConnection()) {
             false -> Completable.error(BaseException.NoInternetConnectionException())
-            true -> body()
+            true -> action
                 .subscribeOn(scheduler)
                 .doOnError(crashConsumer)
         }
@@ -32,14 +32,14 @@ class RemoteExecutorImpl(
     /**
      * Check for internet connection and execute the body function or emit an exception
      *
-     * @param body Another function to execute when there is internet connection
+     * @param action Another function to execute when there is internet connection
      * @return An [Completable] with [BaseException.NoInternetConnectionException] when there is no internet
      * connection or with the body function result
      */
-    override fun <T> checkConnectionAndThenSingle(body: () -> Single<T>): Single<T> {
+    override fun <T> checkConnectionAndThenSingle(action: Single<T>): Single<T> {
         return when (networkHandler.hasInternetConnection()) {
             false -> Single.error(BaseException.NoInternetConnectionException())
-            true -> body()
+            true -> action
                 .subscribeOn(scheduler)
                 .doOnError(crashConsumer)
         }
@@ -49,17 +49,17 @@ class RemoteExecutorImpl(
      * Check for internet connection, execute the body function and map the result or emit an exception
      *
      * @param mapper A function to map values from server to feature models
-     * @param body Another function to execute when there is internet connection
+     * @param action Another function to execute when there is internet connection
      * @return An [Completable] with [BaseException.NoInternetConnectionException] when there is no internet
      * connection or with the body function result
      */
     override fun <T, R> checkConnectionAndThenMapper(
         mapper: Function<T, R>,
-        body: () -> Single<T>
+        action: Single<T>
     ): Single<R> {
         return when (networkHandler.hasInternetConnection()) {
             false -> Single.error(BaseException.NoInternetConnectionException())
-            true -> body()
+            true -> action
                 .subscribeOn(scheduler)
                 .map(mapper)
                 .doOnError(crashConsumer)

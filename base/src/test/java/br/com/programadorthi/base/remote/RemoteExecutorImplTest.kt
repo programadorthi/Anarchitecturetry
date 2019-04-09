@@ -37,9 +37,9 @@ class RemoteExecutorImplTest {
     fun `should throw NoInternetConnectionException when there is no internet connection`() {
         every { networkHandler.hasInternetConnection() } returns false
 
-        val testObserver = remoteExecutor.checkConnectionAndThenComplete {
-            Completable.complete()
-        }.test()
+        val testObserver = remoteExecutor.checkConnectionAndThenComplete(
+            action = Completable.complete()
+        ).test()
 
         testObserver.awaitTerminalEvent()
 
@@ -52,9 +52,9 @@ class RemoteExecutorImplTest {
     fun `should report crash using crash consumer when there is any exception`() {
         val expected = Throwable("this is an exception")
 
-        val testObserver = remoteExecutor.checkConnectionAndThenComplete {
-            Completable.error(expected)
-        }.test()
+        val testObserver = remoteExecutor.checkConnectionAndThenComplete(
+            action = Completable.error(expected)
+        ).test()
 
         testObserver.awaitTerminalEvent()
 
@@ -66,9 +66,9 @@ class RemoteExecutorImplTest {
 
     @Test
     fun `should API call complete when there is internet connection`() {
-        val testObserver = remoteExecutor.checkConnectionAndThenComplete {
-            Completable.complete()
-        }.test()
+        val testObserver = remoteExecutor.checkConnectionAndThenComplete(
+            action = Completable.complete()
+        ).test()
 
         testObserver.awaitTerminalEvent()
 
@@ -81,9 +81,9 @@ class RemoteExecutorImplTest {
     fun `should API call get single without mapper when there is internet connection`() {
         val response = "this is a response"
 
-        val testObserver = remoteExecutor.checkConnectionAndThenSingle {
-            Single.just(response)
-        }.test()
+        val testObserver = remoteExecutor.checkConnectionAndThenSingle(
+            action = Single.just(response)
+        ).test()
 
         testObserver.awaitTerminalEvent()
 
@@ -102,9 +102,10 @@ class RemoteExecutorImplTest {
 
         every { mapper.apply(input) } returns output
 
-        val testObserver = remoteExecutor.checkConnectionAndThenMapper(mapper) {
-            Single.just(input)
-        }.test()
+        val testObserver = remoteExecutor.checkConnectionAndThenMapper(
+            mapper = mapper,
+            action = Single.just(input)
+        ).test()
 
         testObserver.awaitTerminalEvent()
 
