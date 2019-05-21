@@ -1,3 +1,10 @@
 <resources>
-    <!--string name="app_name">An archtecture try</string-->
+    <string name="market_price_bitcoin_acronym" translatable="false">BTC</string>
+    <string name="market_price_date_sample">01/01/2000 21:00</string>
+    <string name="market_price_historical_empty">Empty list</string>
+    <string name="market_price_historical_title">Historical Market Price</string>
+    <string name="market_price_menu_refresh">Refresh</string>
+    <string name="market_price_title">Market Price</string>
+    <string name="market_price_today">Last update: %1$s</string>
+    <string name="market_price_value_sample">$3,234.00</string>
 </resources>

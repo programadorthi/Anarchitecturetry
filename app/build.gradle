@@ -33,7 +33,6 @@ android {
             resValue "string", "app_name", "${rootProject.ext.android.applicationName} Debug"
         }
         release {
-            shrinkResources true
             minifyEnabled true
             resValue "string", "app_name", "${rootProject.ext.android.applicationName}"
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
@@ -65,9 +64,8 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
-    // Features
+    // Core
     implementation project(':base')
-    implementation project(':blockchain')
 
     // Alerter
     implementation rootProject.ext.commonDependencies.alerter

@@ -23,11 +23,13 @@ object NetworkModule {
 
     @Provides
     @Singleton
+    @JvmStatic
     fun provideConverter(moshi: Moshi): Converter.Factory = MoshiConverterFactory.create(moshi)
 
     @Provides
     @Singleton
     @Named(HTTP_LOGGING_INTERCEPTOR)
+    @JvmStatic
     fun provideHttpLoggingInterceptor(): Interceptor {
         return HttpLoggingInterceptor(
             HttpLoggingInterceptor.Logger { message -> Timber.d(message); }
@@ -38,6 +40,7 @@ object NetworkModule {
 
     @Provides
     @Singleton
+    @JvmStatic
     fun provideOkHttpClient(
         @Named(HTTP_LOGGING_INTERCEPTOR) httpLoggingInterceptor: Interceptor
     ): OkHttpClient {
@@ -57,6 +60,7 @@ object NetworkModule {
 
     @Provides
     @Singleton
+    @JvmStatic
     fun provideRetrofit(
         httpClient: OkHttpClient,
         converter: Converter.Factory

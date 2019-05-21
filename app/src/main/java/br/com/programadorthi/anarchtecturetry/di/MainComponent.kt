@@ -15,20 +15,20 @@ import javax.inject.Singleton
 @Singleton
 @Component(
     modules = [
-        AndroidInjectionModule::class,
         ActivityModule::class,
+        AndroidInjectionModule::class,
         ApplicationModule::class,
         DatabaseModule::class,
         NetworkModule::class
     ]
 )
 interface MainComponent : AndroidInjector<MainApplication> {
+
     @Component.Builder
     interface Builder {
+
         @BindsInstance
         fun context(context: Context): Builder
-
-        fun networkModule(networkModule: NetworkModule): Builder
 
         fun build(): MainComponent
     }

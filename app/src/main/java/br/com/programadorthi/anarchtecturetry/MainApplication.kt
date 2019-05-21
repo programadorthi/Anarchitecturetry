@@ -3,7 +3,6 @@ package br.com.programadorthi.anarchtecturetry
 import android.app.Activity
 import android.app.Application
 import br.com.programadorthi.anarchtecturetry.di.DaggerMainComponent
-import br.com.programadorthi.anarchtecturetry.di.modules.NetworkModule
 import dagger.android.AndroidInjector
 import dagger.android.DispatchingAndroidInjector
 import dagger.android.HasActivityInjector
@@ -25,10 +24,9 @@ class MainApplication : Application(), HasActivityInjector {
 
     private fun initDagger() {
         DaggerMainComponent.builder()
-            .context(this@MainApplication)
-            .networkModule(NetworkModule)
+            .context(this)
             .build()
-            .inject(this@MainApplication)
+            .inject(this)
     }
 
     private fun initTimber() {
@@ -36,4 +34,5 @@ class MainApplication : Application(), HasActivityInjector {
             Timber.plant(Timber.DebugTree())
         }
     }
+
 }

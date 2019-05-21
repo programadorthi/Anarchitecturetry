@@ -1,7 +1,7 @@
 package br.com.programadorthi.anarchtecturetry.di.modules
 
-import br.com.programadorthi.blockchain.di.BlockchainModule
-import br.com.programadorthi.blockchain.presentation.BlockchainActivity
+import br.com.programadorthi.anarchtecturetry.feature.blockchain.di.BlockchainModule
+import br.com.programadorthi.anarchtecturetry.feature.blockchain.presentation.BlockchainActivity
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
 

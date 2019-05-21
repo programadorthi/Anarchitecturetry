@@ -1,9 +1,8 @@
-apply plugin: 'com.android.feature'
+apply plugin: 'com.android.library'
 
 apply plugin: 'kotlin-android'
 
 android {
-    baseFeature true
 
     compileSdkVersion rootProject.ext.android.compileSdkVersion
     buildToolsVersion rootProject.ext.android.buildToolsVersion
@@ -47,9 +46,6 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
-    application project(':app')
-    feature project(":blockchain")
-
     // Android
     implementation rootProject.ext.commonDependencies.core
 
@@ -68,6 +64,9 @@ dependencies {
 
     // Moshi
     implementation rootProject.ext.commonDependencies.moshi
+
+    // Room
+    implementation rootProject.ext.commonDependencies.roomRuntime
 
     // RxJava 2
     implementation rootProject.ext.commonDependencies.rxJava2

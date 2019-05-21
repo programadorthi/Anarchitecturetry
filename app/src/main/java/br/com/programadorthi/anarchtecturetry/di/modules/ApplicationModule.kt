@@ -2,8 +2,8 @@ package br.com.programadorthi.anarchtecturetry.di.modules
 
 import android.content.Context
 import br.com.programadorthi.anarchtecturetry.firebase.CrashlyticsConsumer
-import br.com.programadorthi.anarchtecturetry.formatter.DateFormatter
-import br.com.programadorthi.anarchtecturetry.formatter.MoneyFormatter
+import br.com.programadorthi.base.formatter.DateFormatter
+import br.com.programadorthi.base.formatter.MoneyFormatter
 import br.com.programadorthi.base.adapter.BigDecimalJsonAdapter
 import br.com.programadorthi.base.remote.NetworkHandler
 import br.com.programadorthi.base.remote.NetworkHandlerImpl
