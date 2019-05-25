@@ -4,30 +4,32 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
 import br.com.programadorthi.anarchtecturetry.R
-import br.com.programadorthi.base.extension.createViewModel
-import br.com.programadorthi.base.extension.observe
+import br.com.programadorthi.anarchtecturetry.feature.blockchain.presentation.adapter.BlockchainAdapter
+import br.com.programadorthi.anarchtecturetry.viewmodel.ViewModelFactory
+import br.com.programadorthi.base.exception.BaseException
 import br.com.programadorthi.base.extension.setVisible
-import br.com.programadorthi.base.presentation.ViewActionState
+import br.com.programadorthi.base.presentation.ViewState
 import dagger.android.AndroidInjection
 import kotlinx.android.synthetic.main.activity_blockchain.*
-import timber.log.Timber
 import javax.inject.Inject
 
 class BlockchainActivity : AppCompatActivity() {
 
     @Inject
-    lateinit var blockchainViewModel: BlockchainViewModel
+    lateinit var viewModelFactory: ViewModelFactory
 
     private val blockchainAdapter = BlockchainAdapter()
+
+    private lateinit var blockchainViewModel: BlockchainViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         AndroidInjection.inject(this)
 
         super.onCreate(savedInstanceState)
-        
+
         setContentView(R.layout.activity_blockchain)
 
         initRecyclerView()
@@ -42,67 +44,82 @@ class BlockchainActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         val itemId = item?.itemId ?: return false
         if (itemId == R.id.refreshMenu) {
-            blockchainViewModel.apply {
-                fetchCurrentMarketPrice()
-                fetchAllMarketPrices()
-            }
+            blockchainViewModel.refresh()
             return true
         }
         return super.onOptionsItemSelected(item)
     }
 
     private fun initRecyclerView() {
-        val linearLayoutManager =
-            LinearLayoutManager(this@BlockchainActivity, RecyclerView.VERTICAL, false)
-        marketPricesRecyclerView.apply {
-            layoutManager = linearLayoutManager
-            adapter = blockchainAdapter
-        }
+        marketPricesRecyclerView.adapter = blockchainAdapter
     }
 
     private fun initViewModel() {
-        createViewModel(blockchainViewModel) {
-            observe(currentMarketPrice, ::updateCurrentMarketPrice)
-            observe(marketPrices, ::updateMarketPrices)
-        }.apply {
-            getLocalMarketPrice()
-            getLocalMarketPrices()
-        }
+        blockchainViewModel = ViewModelProviders
+            .of(this, viewModelFactory)
+            .get(BlockchainViewModel::class.java)
+
+        blockchainViewModel.currentMarketPrice.observe(this, Observer { state ->
+            updateCurrentMarketPrice(state)
+        })
+
+        blockchainViewModel.marketPrices.observe(this, Observer { state ->
+            updateMarketPrices(state)
+        })
+
+        blockchainViewModel.initialize()
     }
 
-    private fun updateCurrentMarketPrice(state: ViewActionState<BlockchainViewData>?) {
+    private fun updateCurrentMarketPrice(state: ViewState<BlockchainViewData>?) {
         when (state) {
-            is ViewActionState.Complete -> {
-                val viewData = state.result
-                currentMarketPriceValue.text = viewData.value
-                currentMarketPriceDate.text = viewData.date
+            is ViewState.Complete -> {
+                state.result.apply {
+                    currentMarketPriceValue.text = value
+                    currentMarketPriceDate.text = date
+                }
             }
-            is ViewActionState.Error -> {
-                Timber.d(state.error, ">>>>>> Current Error")
-            }
+            is ViewState.Error -> checkCurrentMarketError(state.error)
         }
-        currentMarketPriceValue.setVisible(state !is ViewActionState.Loading)
-        currentMarketPriceDate.setVisible(state !is ViewActionState.Loading)
-        currentMarketPricesProgressBar.setVisible(state is ViewActionState.Loading)
+        updateCurrentMarketPriceFields(state)
     }
 
-    private fun updateMarketPrices(state: ViewActionState<List<BlockchainViewData>>?) {
-        var result = emptyList<BlockchainViewData>()
+    private fun updateMarketPrices(state: ViewState<List<BlockchainViewData>>?) {
         when (state) {
-            is ViewActionState.Complete -> {
+            is ViewState.Complete -> {
                 blockchainAdapter.changeDataSet(state.result)
-                result = state.result
             }
-            is ViewActionState.Error -> {
-                Timber.d(state.error, ">>>>>> Prices Error")
-                result = state.previousData
-            }
+            is ViewState.Error -> checkMarketPricesError(state.error)
         }
-        marketPricesRecyclerView.setVisible(result.isNotEmpty())
-        marketPricesEmptyList.setVisible(
-            state !is ViewActionState.Loading && result.isEmpty()
-        )
-        marketPricesProgressBar.setVisible(state is ViewActionState.Loading)
+        updateMarketPricesFields(state)
+    }
+
+    private fun updateCurrentMarketPriceFields(state: ViewState<BlockchainViewData>?) {
+        currentMarketPriceValue.setVisible(state is ViewState.Complete)
+        currentMarketPriceDate.setVisible(state is ViewState.Complete)
+        currentMarketPriceErrorText.setVisible(state is ViewState.Error)
+        currentMarketPricesProgressBar.setVisible(state is ViewState.Loading)
+    }
+
+    private fun updateMarketPricesFields(state: ViewState<List<BlockchainViewData>>?) {
+        marketPricesRecyclerView.setVisible(state is ViewState.Complete)
+        marketPricesErrorText.setVisible(state is ViewState.Error)
+        marketPricesProgressBar.setVisible(state is ViewState.Loading)
+    }
+
+    private fun checkCurrentMarketError(throwable: Throwable) {
+        val text = when (throwable) {
+            is BaseException.NoInternetConnectionException -> getString(R.string.shared_text_no_internet_connection)
+            else -> getString(R.string.shared_text_unknown_exception)
+        }
+        currentMarketPriceErrorText.text = text
+    }
+
+    private fun checkMarketPricesError(throwable: Throwable) {
+        val text = when (throwable) {
+            is BaseException.NoInternetConnectionException -> getString(R.string.shared_text_no_internet_connection)
+            else -> getString(R.string.shared_text_unknown_exception)
+        }
+        marketPricesErrorText.text = text
     }
 
 }

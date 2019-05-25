@@ -39,8 +39,8 @@ sealed class BaseException(message: String = "") : RuntimeException(message) {
          * E.g: Send the exception to Crashlytics
          */
         fun isAnExceptionToReport(throwable: Throwable?): Boolean =
-            throwable is BaseException.HttpCallException ||
-                    throwable is BaseException.EssentialParamMissingException ||
-                    throwable is BaseException.UnknownEndpointException
+            throwable is HttpCallException ||
+                    throwable is EssentialParamMissingException ||
+                    throwable is UnknownEndpointException
     }
 }

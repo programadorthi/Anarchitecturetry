@@ -1,6 +1,5 @@
 package br.com.programadorthi.anarchtecturetry.feature.blockchain.domain
 
-import br.com.programadorthi.anarchtecturetry.feature.blockchain.domain.Blockchain
 import io.reactivex.Completable
 import io.reactivex.Flowable
 

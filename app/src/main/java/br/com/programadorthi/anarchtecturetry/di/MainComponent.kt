@@ -2,10 +2,8 @@ package br.com.programadorthi.anarchtecturetry.di
 
 import android.content.Context
 import br.com.programadorthi.anarchtecturetry.MainApplication
-import br.com.programadorthi.anarchtecturetry.di.modules.ActivityModule
-import br.com.programadorthi.anarchtecturetry.di.modules.ApplicationModule
-import br.com.programadorthi.anarchtecturetry.di.modules.DatabaseModule
-import br.com.programadorthi.anarchtecturetry.di.modules.NetworkModule
+import br.com.programadorthi.anarchtecturetry.di.modules.*
+import br.com.programadorthi.anarchtecturetry.feature.blockchain.di.BlockchainModule
 import dagger.BindsInstance
 import dagger.Component
 import dagger.android.AndroidInjectionModule
@@ -18,8 +16,10 @@ import javax.inject.Singleton
         ActivityModule::class,
         AndroidInjectionModule::class,
         ApplicationModule::class,
+        BlockchainModule::class,
         DatabaseModule::class,
-        NetworkModule::class
+        NetworkModule::class,
+        ViewModelModule::class
     ]
 )
 interface MainComponent : AndroidInjector<MainApplication> {

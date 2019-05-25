@@ -9,7 +9,7 @@ import br.com.programadorthi.base.remote.NetworkHandler
 import br.com.programadorthi.base.remote.NetworkHandlerImpl
 import br.com.programadorthi.base.remote.RemoteExecutor
 import br.com.programadorthi.base.remote.RemoteExecutorImpl
-import br.com.programadorthi.base.presentation.TextFormatter
+import br.com.programadorthi.base.formatter.TextFormatter
 import br.com.programadorthi.base.utils.ANDROID_SCHEDULER
 import br.com.programadorthi.base.utils.DATE_FORMATTER
 import br.com.programadorthi.base.utils.IO_SCHEDULER

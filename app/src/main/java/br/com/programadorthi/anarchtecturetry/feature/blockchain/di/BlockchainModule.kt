@@ -9,7 +9,7 @@ import br.com.programadorthi.anarchtecturetry.feature.blockchain.domain.Blockcha
 import br.com.programadorthi.anarchtecturetry.feature.blockchain.domain.BlockchainInteractorImpl
 import br.com.programadorthi.anarchtecturetry.feature.blockchain.domain.BlockchainRepository
 import br.com.programadorthi.anarchtecturetry.feature.blockchain.presentation.BlockchainViewModel
-import br.com.programadorthi.base.presentation.TextFormatter
+import br.com.programadorthi.base.formatter.TextFormatter
 import br.com.programadorthi.base.remote.BaseRemoteMapper
 import br.com.programadorthi.base.remote.RemoteExecutor
 import br.com.programadorthi.base.utils.ANDROID_SCHEDULER

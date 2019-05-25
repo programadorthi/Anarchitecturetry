@@ -20,7 +20,6 @@ ext {
     room                = '2.0.0'
 
     // Third party libraries
-    alerter   = '4.0.0'
     dagger2   = '2.21'
     moshi     = '1.8.0'
     okHttp    = '3.12.0'
@@ -42,8 +41,6 @@ ext {
     timber = '4.7.1'
 
     commonDependencies = [
-            alerter                         : "com.tapadoo.android:alerter:${alerter}",
-
             annotation                      : "androidx.annotation:annotation:${annotation}",
 
             appcompat                       : "androidx.appcompat:appcompat:${appcompat}",

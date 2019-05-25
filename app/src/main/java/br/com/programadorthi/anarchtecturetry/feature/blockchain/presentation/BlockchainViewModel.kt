@@ -3,9 +3,10 @@ package br.com.programadorthi.anarchtecturetry.feature.blockchain.presentation
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import br.com.programadorthi.anarchtecturetry.feature.blockchain.domain.Blockchain
 import br.com.programadorthi.anarchtecturetry.feature.blockchain.domain.BlockchainInteractor
-import br.com.programadorthi.base.presentation.TextFormatter
-import br.com.programadorthi.base.presentation.ViewActionState
+import br.com.programadorthi.base.formatter.TextFormatter
+import br.com.programadorthi.base.presentation.ViewState
 import io.reactivex.Observable
 import io.reactivex.Scheduler
 import io.reactivex.Single
@@ -20,117 +21,100 @@ class BlockchainViewModel(
     private val scheduler: Scheduler
 ) : ViewModel() {
 
-    private val mutableCurrentMarketPrice = MutableLiveData<ViewActionState<BlockchainViewData>>()
-    val currentMarketPrice: LiveData<ViewActionState<BlockchainViewData>>
+    private val mutableCurrentMarketPrice = MutableLiveData<ViewState<BlockchainViewData>>()
+    val currentMarketPrice: LiveData<ViewState<BlockchainViewData>>
         get() = mutableCurrentMarketPrice
 
-    private val mutableMarketPrices = MutableLiveData<ViewActionState<List<BlockchainViewData>>>()
-    val marketPrices: LiveData<ViewActionState<List<BlockchainViewData>>>
+    private val mutableMarketPrices = MutableLiveData<ViewState<List<BlockchainViewData>>>()
+    val marketPrices: LiveData<ViewState<List<BlockchainViewData>>>
         get() = mutableMarketPrices
 
     private val compositeDisposable = CompositeDisposable()
 
     override fun onCleared() {
-        super.onCleared()
         compositeDisposable.dispose()
+        super.onCleared()
     }
 
-    fun fetchCurrentMarketPrice() {
-        val disposable = Observable
-            .just(mutableCurrentMarketPrice.value)
-            .map { currentValue ->
-                when (currentValue) {
-                    is ViewActionState.Complete -> currentValue.result
-                    is ViewActionState.Error -> currentValue.previousData
-                    else -> BlockchainViewData.EMPTY
-                }
+    fun initialize() {
+        getLocalMarketPrice()
+        getLocalMarketPrices()
+        refresh()
+    }
+
+    fun refresh() {
+        fetchCurrentMarketPrice()
+        fetchAllMarketPrices()
+    }
+
+    private fun fetchCurrentMarketPrice() {
+        mutableCurrentMarketPrice.value = ViewState.Loading()
+
+        val disposable = blockchainInteractor
+            .fetchCurrentMarketPrice()
+            .observeOn(scheduler)
+            .onErrorComplete { err ->
+                mutableCurrentMarketPrice.postValue(ViewState.Error(err))
+                return@onErrorComplete true
             }
-            .doOnNext { mutableCurrentMarketPrice.value = ViewActionState.loading() }
-            .flatMapCompletable { currentValue ->
-                blockchainInteractor
-                    .fetchCurrentMarketPrice()
-                    .observeOn(scheduler)
-                    .onErrorComplete { err ->
-                        mutableCurrentMarketPrice.postValue(
-                            ViewActionState.failure(err, currentValue)
-                        )
-                        return@onErrorComplete true
-                    }
-            }.subscribe()
+            .subscribe()
+        compositeDisposable.add(disposable)
+    }
+
+    private fun fetchAllMarketPrices() {
+        mutableMarketPrices.value = ViewState.Loading()
+
+        val disposable = blockchainInteractor
+            .fetchAllMarketPrices()
+            .observeOn(scheduler)
+            .onErrorComplete { err ->
+                mutableMarketPrices.postValue(ViewState.Error(err))
+                return@onErrorComplete true
+            }
+            .subscribe()
 
         compositeDisposable.add(disposable)
     }
 
-    fun fetchAllMarketPrices() {
-        val disposable = Observable
-            .just(mutableMarketPrices.value)
-            .map { currentValue ->
-                return@map when (currentValue) {
-                    is ViewActionState.Complete -> currentValue.result
-                    is ViewActionState.Error -> currentValue.previousData
-                    else -> emptyList()
-                }
-            }
-            .doOnNext { mutableMarketPrices.value = ViewActionState.loading() }
-            .flatMapCompletable { currentValue ->
-                blockchainInteractor
-                    .fetchAllMarketPrices()
-                    .observeOn(scheduler)
-                    .onErrorComplete { err ->
-                        mutableMarketPrices.postValue(
-                            ViewActionState.failure(err, currentValue)
-                        )
-                        return@onErrorComplete true
-                    }
-            }.subscribe()
-
-        compositeDisposable.add(disposable)
-    }
-
-    fun getLocalMarketPrice() {
+    private fun getLocalMarketPrice() {
         val disposable = blockchainInteractor
             .getCurrentMarketPrice()
-            .map { result ->
-                ViewActionState.complete(
-                    BlockchainViewData(
-                        date = dateFormatter.format(result.date),
-                        value = moneyFormatter.format(result.value)
-                    )
-                )
-            }
-            .onErrorReturn { err -> ViewActionState.failure(err, BlockchainViewData.EMPTY) }
+            .map<ViewState<BlockchainViewData>> { result -> ViewState.Complete(mapToBlockchainViewData(result)) }
+            .onErrorReturn { err -> ViewState.Error(err) }
             .observeOn(scheduler)
-            .doOnSubscribe { mutableCurrentMarketPrice.value = ViewActionState.loading() }
             .subscribe(mutableCurrentMarketPrice::postValue)
 
         compositeDisposable.add(disposable)
     }
 
-    fun getLocalMarketPrices() {
+    private fun getLocalMarketPrices() {
         val disposable = blockchainInteractor
             .getAllMarketPrices()
-            .flatMapSingle { result ->
-                if (result.isEmpty()) {
-                    val complete = ViewActionState.complete(emptyList<BlockchainViewData>())
-                    return@flatMapSingle Single.just(complete)
-                }
-                return@flatMapSingle Observable
-                    .fromIterable(result)
-                    .map { item ->
-                        BlockchainViewData(
-                            date = dateFormatter.format(item.date),
-                            value = moneyFormatter.format(item.value)
-                        )
-                    }
-                    .toList()
-                    .map { list -> ViewActionState.complete(list) }
-            }
-            .onErrorReturn { err -> ViewActionState.failure(err, emptyList()) }
+            .flatMapSingle(this::mapItemsToBlockchainViewData)
+            .onErrorReturn { err -> ViewState.Error(err) }
             .observeOn(scheduler)
-            .doOnSubscribe { mutableMarketPrices.value = ViewActionState.loading() }
             .subscribe(mutableMarketPrices::postValue)
 
         compositeDisposable.add(disposable)
+    }
+
+    private fun mapToBlockchainViewData(blockchain: Blockchain): BlockchainViewData {
+        return BlockchainViewData(
+            date = dateFormatter.format(blockchain.date, Locale.getDefault()),
+            value = moneyFormatter.format(blockchain.value, Locale.getDefault())
+        )
+    }
+
+    private fun mapItemsToBlockchainViewData(blockchains: List<Blockchain>): Single<ViewState<List<BlockchainViewData>>> {
+        if (blockchains.isEmpty()) {
+            return Single.just(ViewState.Complete(emptyList()))
+        }
+
+        return Observable
+            .fromIterable(blockchains)
+            .map(this::mapToBlockchainViewData)
+            .toList()
+            .map { result -> ViewState.Complete(result) }
     }
 
 }

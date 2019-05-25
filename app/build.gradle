@@ -67,9 +67,6 @@ dependencies {
     // Core
     implementation project(':base')
 
-    // Alerter
-    implementation rootProject.ext.commonDependencies.alerter
-
     // Android
     implementation rootProject.ext.commonDependencies.annotation
     implementation rootProject.ext.commonDependencies.appcompat
