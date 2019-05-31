@@ -129,4 +129,5 @@ dependencies {
     androidTestImplementation rootProject.ext.testingDependencies.espressoContrib
     androidTestImplementation rootProject.ext.testingDependencies.espressoIntents
     androidTestImplementation rootProject.ext.testingDependencies.androidTestArchCore
+    kaptAndroidTest rootProject.ext.commonDependencies.dagger2Compiler
 }

@@ -20,8 +20,7 @@ import java.util.*
 
 class BlockchainViewModelTest {
 
-    @Rule
-    @JvmField
+    @get:Rule
     val instantExecutorRule = InstantTaskExecutorRule()
 
     private val blockchainInteractor = mockk<BlockchainInteractor>()

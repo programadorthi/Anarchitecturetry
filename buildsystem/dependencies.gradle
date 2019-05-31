@@ -5,6 +5,12 @@ allprojects {
         mavenCentral()
         maven { url "https://jitpack.io" }
     }
+    // Work-around because new objenesis version are using MethodHandle.invoke :/
+    configurations.all {
+        resolutionStrategy {
+            force("org.objenesis:objenesis:2.6")
+        }
+    }
 }
 
 ext {
@@ -35,7 +41,7 @@ ext {
     assertJ             = '3.11.1'
     espresso            = '3.1.1'
     junit               = '4.12'
-    mockk               = '1.9'
+    mockk               = '1.9.3'
 
     // Log
     timber = '4.7.1'

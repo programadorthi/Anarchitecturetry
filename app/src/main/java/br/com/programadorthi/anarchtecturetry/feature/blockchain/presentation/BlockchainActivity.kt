@@ -5,10 +5,10 @@ import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import br.com.programadorthi.anarchtecturetry.R
 import br.com.programadorthi.anarchtecturetry.feature.blockchain.presentation.adapter.BlockchainAdapter
-import br.com.programadorthi.anarchtecturetry.viewmodel.ViewModelFactory
 import br.com.programadorthi.base.exception.BaseException
 import br.com.programadorthi.base.extension.setVisible
 import br.com.programadorthi.base.presentation.ViewState
@@ -19,7 +19,7 @@ import javax.inject.Inject
 class BlockchainActivity : AppCompatActivity() {
 
     @Inject
-    lateinit var viewModelFactory: ViewModelFactory
+    lateinit var viewModelFactory: ViewModelProvider.Factory
 
     private val blockchainAdapter = BlockchainAdapter()
 
