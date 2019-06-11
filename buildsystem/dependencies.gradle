@@ -5,6 +5,12 @@ allprojects {
         mavenCentral()
         maven { url "https://jitpack.io" }
     }
+    // Work-around because new objenesis version are using MethodHandle.invoke :/
+    configurations.all {
+        resolutionStrategy {
+            force("org.objenesis:objenesis:2.6")
+        }
+    }
 }
 
 ext {
@@ -14,14 +20,13 @@ ext {
     appcompat           = '1.0.2'
     cardview            = '1.0.0'
     constraintlayout    = '1.1.3'
-    lifecycleCompiler   = '2.0.0'
+    core                = '1.0.1'
     lifecycleExtensions = '2.0.0'
     recyclerview        = '1.0.0'
     room                = '2.0.0'
 
     // Third party libraries
-    alerter   = '4.0.0'
-    dagger2   = '2.20'
+    dagger2   = '2.21'
     moshi     = '1.8.0'
     okHttp    = '3.12.0'
     retrofit2 = '2.5.0'
@@ -36,14 +41,12 @@ ext {
     assertJ             = '3.11.1'
     espresso            = '3.1.1'
     junit               = '4.12'
-    mockk               = '1.9'
+    mockk               = '1.9.3'
 
     // Log
     timber = '4.7.1'
 
     commonDependencies = [
-            alerter                         : "com.tapadoo.android:alerter:${alerter}",
-
             annotation                      : "androidx.annotation:annotation:${annotation}",
 
             appcompat                       : "androidx.appcompat:appcompat:${appcompat}",
@@ -52,12 +55,15 @@ ext {
 
             constraintlayout                : "androidx.constraintlayout:constraintlayout:${constraintlayout}",
 
+            core                            : "androidx.core:core:${core}",
+
             dagger2                         : "com.google.dagger:dagger:${dagger2}",
+            dagger2AndroidProcessor         : "com.google.dagger:dagger-android-processor:${dagger2}",
+            dagger2AndroidSupport           : "com.google.dagger:dagger-android-support:${dagger2}",
             dagger2Compiler                 : "com.google.dagger:dagger-compiler:${dagger2}",
 
             kotlinJdk                       : "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${kotlin_version}",
 
-            lifecycleCompiler               : "androidx.lifecycle:lifecycle-compiler:${lifecycleCompiler}",
             lifecycleExtensions             : "androidx.lifecycle:lifecycle-extensions:${lifecycleExtensions}",
 
             moshi                           : "com.squareup.moshi:moshi:${moshi}",

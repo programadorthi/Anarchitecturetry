@@ -1,7 +1,8 @@
-apply plugin: 'com.android.feature'
+apply plugin: 'com.android.library'
+
+apply plugin: 'kotlin-android'
 
 android {
-    baseFeature true
 
     compileSdkVersion rootProject.ext.android.compileSdkVersion
     buildToolsVersion rootProject.ext.android.buildToolsVersion
@@ -45,8 +46,18 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
-    application project(':app')
-    feature project(":blockchain")
+    // Android
+    implementation rootProject.ext.commonDependencies.core
+
+    // Architecture components
+    implementation(rootProject.ext.commonDependencies.lifecycleExtensions) {
+        exclude group: 'androidx.legacy', module: 'legacy-support-core-ui'
+        exclude group: 'androidx.legacy', module: 'legacy-support-core-utils'
+        exclude group: 'androidx.lifecycle', module: 'lifecycle-process'
+        exclude group: 'androidx.lifecycle', module: 'lifecycle-runtime'
+        exclude group: 'androidx.lifecycle', module: 'lifecycle-service'
+        exclude group: 'androidx.loader', module: 'loader'
+    }
 
     // Kotlin
     implementation rootProject.ext.commonDependencies.kotlinJdk
@@ -54,7 +65,15 @@ dependencies {
     // Moshi
     implementation rootProject.ext.commonDependencies.moshi
 
+    // Room
+    implementation rootProject.ext.commonDependencies.roomRuntime
+
     // RxJava 2
     implementation rootProject.ext.commonDependencies.rxJava2
+
+    // Unit Tests
+    testImplementation rootProject.ext.testingDependencies.junit
+    testImplementation rootProject.ext.testingDependencies.mockk
+    testImplementation rootProject.ext.testingDependencies.assertj
 
 }
