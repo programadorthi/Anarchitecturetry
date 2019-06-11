@@ -6,6 +6,7 @@ ext {
             applicationName       : "An archtecture try",
             buildToolsVersion     : "28.0.3",
             compileSdkVersion     : 28,
+            dynamicFeatures       : [':blockchain'],
             generatedDensities    : ["mdpi", "hdpi", "xhdpi"],
             generatedDensitiesDev : ["xhdpi"],
             javaVersion           : JavaVersion.VERSION_1_8,

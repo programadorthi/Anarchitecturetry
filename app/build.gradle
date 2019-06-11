@@ -33,7 +33,6 @@ android {
             resValue "string", "app_name", "${rootProject.ext.android.applicationName} Debug"
         }
         release {
-            shrinkResources true
             minifyEnabled true
             resValue "string", "app_name", "${rootProject.ext.android.applicationName}"
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
@@ -65,12 +64,8 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
-    // Features
+    // Core
     implementation project(':base')
-    implementation project(':blockchain')
-
-    // Alerter
-    implementation rootProject.ext.commonDependencies.alerter
 
     // Android
     implementation rootProject.ext.commonDependencies.annotation
@@ -81,11 +76,14 @@ dependencies {
 
     // Architecture components
     implementation rootProject.ext.commonDependencies.lifecycleExtensions
-    kapt rootProject.ext.commonDependencies.lifecycleCompiler
-    androidTestImplementation rootProject.ext.commonDependencies.lifecycleExtensions
 
     // Dagger 2
     implementation rootProject.ext.commonDependencies.dagger2
+    implementation(rootProject.ext.commonDependencies.dagger2AndroidSupport) {
+        exclude group: "com.android.support", module: "appcompat-v7"
+        exclude group: "com.android.support", module: "support-fragment"
+    }
+    kapt rootProject.ext.commonDependencies.dagger2AndroidProcessor
     kapt rootProject.ext.commonDependencies.dagger2Compiler
 
     // Kotlin
@@ -131,4 +129,5 @@ dependencies {
     androidTestImplementation rootProject.ext.testingDependencies.espressoContrib
     androidTestImplementation rootProject.ext.testingDependencies.espressoIntents
     androidTestImplementation rootProject.ext.testingDependencies.androidTestArchCore
+    kaptAndroidTest rootProject.ext.commonDependencies.dagger2Compiler
 }
