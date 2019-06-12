@@ -1,4 +1,4 @@
-apply plugin: 'com.android.application'
+apply plugin: 'com.android.dynamic-feature'
 
 apply plugin: 'kotlin-android'
 
@@ -12,32 +12,17 @@ android {
     buildToolsVersion rootProject.ext.android.buildToolsVersion
 
     defaultConfig {
-        applicationId rootProject.ext.android.applicationId
-
         minSdkVersion rootProject.ext.android.minSdkVersion
 
         resConfigs rootProject.ext.android.resConfigs
 
         targetSdkVersion rootProject.ext.android.targetSdkVersion
-        testInstrumentationRunner rootProject.ext.android.testRunner
 
-        vectorDrawables.generatedDensities = rootProject.ext.android.generatedDensities
-        vectorDrawables.useSupportLibrary = false
-
-        versionCode rootProject.ext.android.versionCode
-        versionName rootProject.ext.android.versionName
     }
 
-    dynamicFeatures = rootProject.ext.android.dynamicFeatures
-
     buildTypes {
-        debug {
-            resValue "string", "app_name", "${rootProject.ext.android.applicationName} Debug"
-        }
         release {
-            minifyEnabled true
-            resValue "string", "app_name", "${rootProject.ext.android.applicationName}"
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            proguardFiles 'proguard-rules-dynamic-features.pro'
         }
     }
 
@@ -51,16 +36,10 @@ android {
     productFlavors {
         dev {
             //applicationIdSuffix ".debug"
-            buildConfigField("String", "API_BASE_URL", rootProject.ext.endpoints.development_endpoint)
-            buildConfigField("String", "PACKAGE_NAME", "\"${rootProject.ext.android.applicationId}\"")
             minSdkVersion rootProject.ext.android.minSdkVersionDev
-            vectorDrawables.generatedDensities = rootProject.ext.android.generatedDensitiesDev
-            vectorDrawables.useSupportLibrary = true
             versionNameSuffix "-dev"
         }
         prod {
-            buildConfigField("String", "API_BASE_URL", rootProject.ext.endpoints.production_endpoint)
-            buildConfigField("String", "PACKAGE_NAME", "\"${rootProject.ext.android.applicationId}\"")
         }
     }
 }
@@ -70,6 +49,7 @@ dependencies {
 
     // Core
     implementation project(':base')
+    implementation project(':app')
 
     // Android
     implementation rootProject.ext.commonDependencies.annotation

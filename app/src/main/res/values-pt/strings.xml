@@ -5,15 +5,4 @@
     <string name="shared_text_no_internet_connection">Não há conexão com a internet</string>
     <string name="shared_text_unknown_exception">Comportamento inesperado. Por favor, tente novamente</string>
     <!-- INI APPLICATION SHARED TEXTS -->
-
-    <!-- INI BLOCKCHAIN FEATURE TEXTS -->
-    <string name="market_price_date_sample">01/01/2000 21:00</string>
-    <string name="market_price_historical_empty">Lista vazia</string>
-    <string name="market_price_historical_title">Histórico Preço de Mercado</string>
-    <string name="market_price_menu_refresh">Atualizar</string>
-    <string name="market_price_title">Preço de Mercado</string>
-    <string name="market_price_today">Última atualização: %1$s</string>
-    <string name="market_price_value_sample">R$3.234,00</string>
-    <!-- END BLOCKCHAIN FEATURE TEXTS -->
-
 </resources>

@@ -1,7 +1,7 @@
 package br.com.programadorthi.anarchtecturetry.di.modules
 
 import android.content.Context
-import br.com.programadorthi.anarchtecturetry.firebase.CrashlyticsConsumer
+import br.com.programadorthi.anarchtecturetry.crashlytics.CrashlyticsConsumer
 import br.com.programadorthi.base.formatter.DateFormatter
 import br.com.programadorthi.base.formatter.MoneyFormatter
 import br.com.programadorthi.base.adapter.BigDecimalJsonAdapter

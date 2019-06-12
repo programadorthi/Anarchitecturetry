@@ -1,0 +1,15 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:dist="http://schemas.android.com/apk/distribution"
+    package="br.com.programadorthi.anarchtecturetry.blockchain">
+
+    <dist:module
+        dist:instant="false"
+        dist:onDemand="false"
+        dist:title="@string/blockchain_dynamic_feature_name">
+        <dist:fusing dist:include="true" />
+    </dist:module>
+    <application>
+        <activity android:name=".presentation.BlockchainActivity" />
+    </application>
+</manifest>
+

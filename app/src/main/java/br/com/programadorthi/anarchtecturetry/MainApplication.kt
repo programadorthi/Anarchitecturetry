@@ -1,37 +1,35 @@
 package br.com.programadorthi.anarchtecturetry
 
-import android.app.Activity
 import android.app.Application
+import android.content.Context
 import br.com.programadorthi.anarchtecturetry.di.DaggerMainComponent
-import dagger.android.AndroidInjector
-import dagger.android.DispatchingAndroidInjector
-import dagger.android.HasActivityInjector
+import br.com.programadorthi.anarchtecturetry.di.MainComponent
 import timber.log.Timber
-import javax.inject.Inject
 
-class MainApplication : Application(), HasActivityInjector {
+class MainApplication : Application() {
 
-    @Inject
-    lateinit var dispatchingAndroidInjector: DispatchingAndroidInjector<Activity>
-
-    override fun onCreate() {
-        super.onCreate()
-        initDagger()
-        initTimber()
-    }
-
-    override fun activityInjector(): AndroidInjector<Activity> = dispatchingAndroidInjector
-
-    private fun initDagger() {
+    private val mainComponent: MainComponent by lazy {
         DaggerMainComponent.builder()
             .context(this)
             .build()
-            .inject(this)
+    }
+
+    override fun onCreate() {
+        super.onCreate()
+        initTimber()
     }
 
     private fun initTimber() {
         if (BuildConfig.DEBUG) {
             Timber.plant(Timber.DebugTree())
+        }
+    }
+
+    companion object {
+        @JvmStatic
+        fun mainComponent(context: Context): MainComponent {
+            val application = context.applicationContext as MainApplication
+            return application.mainComponent
         }
     }
 
