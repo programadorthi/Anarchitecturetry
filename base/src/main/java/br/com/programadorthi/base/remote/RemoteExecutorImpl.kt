@@ -22,7 +22,7 @@ class RemoteExecutorImpl(
      */
     override fun checkConnectionAndThenComplete(action: Completable): Completable {
         return when (networkHandler.hasInternetConnection()) {
-            false -> Completable.error(BaseException.NoInternetConnectionException())
+            false -> Completable.error(BaseException.NoInternetConnectionException)
             true -> action
                 .subscribeOn(scheduler)
                 .doOnError(crashConsumer)
@@ -38,7 +38,7 @@ class RemoteExecutorImpl(
      */
     override fun <T> checkConnectionAndThenSingle(action: Single<T>): Single<T> {
         return when (networkHandler.hasInternetConnection()) {
-            false -> Single.error(BaseException.NoInternetConnectionException())
+            false -> Single.error(BaseException.NoInternetConnectionException)
             true -> action
                 .subscribeOn(scheduler)
                 .doOnError(crashConsumer)
@@ -58,7 +58,7 @@ class RemoteExecutorImpl(
         action: Single<T>
     ): Single<R> {
         return when (networkHandler.hasInternetConnection()) {
-            false -> Single.error(BaseException.NoInternetConnectionException())
+            false -> Single.error(BaseException.NoInternetConnectionException)
             true -> action
                 .subscribeOn(scheduler)
                 .map(mapper)

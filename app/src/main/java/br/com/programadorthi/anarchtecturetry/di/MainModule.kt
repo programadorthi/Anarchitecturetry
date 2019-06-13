@@ -2,6 +2,9 @@ package br.com.programadorthi.anarchtecturetry.di
 
 import br.com.programadorthi.anarchtecturetry.BuildConfig
 import br.com.programadorthi.anarchtecturetry.crashlytics.CrashlyticsConsumer
+import br.com.programadorthi.anarchtecturetry.network.ApplicationInterceptor
+import br.com.programadorthi.anarchtecturetry.network.TokenProvider
+import br.com.programadorthi.anarchtecturetry.network.TokenProviderImpl
 import br.com.programadorthi.base.adapter.BigDecimalJsonAdapter
 import br.com.programadorthi.base.formatter.DateFormatter
 import br.com.programadorthi.base.formatter.MoneyFormatter
@@ -31,7 +34,8 @@ import java.math.BigDecimal
 import java.util.*
 import java.util.concurrent.TimeUnit
 
-private const val HTTP_LOGGING_INTERCEPTOR = "http_logging_interceptor"
+private const val APPLICATION_INTERCEPTOR = "APPLICATION_INTERCEPTOR"
+private const val HTTP_LOGGING_INTERCEPTOR = "HTTP_LOGGING_INTERCEPTOR"
 
 val mainModule = module {
 
@@ -57,6 +61,8 @@ val mainModule = module {
         )
     }
 
+    single<TokenProvider> { TokenProviderImpl() }
+
     single {
         Moshi.Builder()
             .add(BigDecimal::class.java, BigDecimalJsonAdapter())
@@ -77,15 +83,19 @@ val mainModule = module {
         }
     }
 
+    single<Interceptor>(named(name = APPLICATION_INTERCEPTOR)) { ApplicationInterceptor(tokenProvider = get()) }
+
     single<OkHttpClient> {
         val okHttpClientBuilder = OkHttpClient.Builder()
         okHttpClientBuilder.readTimeout(120, TimeUnit.SECONDS)
         okHttpClientBuilder.connectTimeout(120, TimeUnit.SECONDS)
+
+        okHttpClientBuilder.addInterceptor(get(named(name = APPLICATION_INTERCEPTOR)))
+
+        // Order is important. Always put the log interceptor last
         if (BuildConfig.DEBUG) {
             okHttpClientBuilder.addInterceptor(get(named(name = HTTP_LOGGING_INTERCEPTOR)))
         }
-
-        //okHttpClientBuilder.addInterceptor(auth)
 
         return@single okHttpClientBuilder.build()
     }

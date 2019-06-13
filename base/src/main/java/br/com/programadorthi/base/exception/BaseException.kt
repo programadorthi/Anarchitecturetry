@@ -18,7 +18,7 @@ sealed class BaseException(message: String = "") : RuntimeException(message) {
     ) : BaseException("$missingParam are missing in received object: $rawObject")
 
     /**
-     * Object used to identify a generic http request exception
+     * Data class used to identify a generic http request exception
      */
     data class HttpCallException(val code: Int) :
         BaseException("Server HTTP response code was $code")
@@ -26,7 +26,12 @@ sealed class BaseException(message: String = "") : RuntimeException(message) {
     /**
      * Object used to identify a network without internet connection
      */
-    class NoInternetConnectionException : BaseException()
+    object NoInternetConnectionException : BaseException()
+
+    /**
+     * Object used to identify an authorized user. E.g: HTTP 401
+     */
+    object UnauthorizedException : BaseException()
 
     /**
      * Exception to identify an invalid endpoint

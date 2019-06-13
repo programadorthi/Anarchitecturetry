@@ -41,8 +41,8 @@ class BaseRemoteMapperTest {
             }
         }
 
-        override fun copyValues(raw: FakeResponseRaw): FakeModel {
-            // sample value was checked in the checkParams method
+        override fun copyValuesAfterCheckRequiredParams(raw: FakeResponseRaw): FakeModel {
+            // sample value was checked in the checkRequiredParamsBeforeCopyValues method
             return FakeModel(value = raw.rawValue!!)
         }
     }

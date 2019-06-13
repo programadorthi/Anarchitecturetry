@@ -14,7 +14,7 @@ abstract class BaseRemoteMapper<Raw, Model> : Function<Raw, Model> {
     @Throws(BaseException.EssentialParamMissingException::class)
     override fun apply(raw: Raw): Model {
         assertEssentialParams(raw)
-        return copyValues(raw)
+        return copyValuesAfterCheckRequiredParams(raw)
     }
 
     /**
@@ -24,8 +24,7 @@ abstract class BaseRemoteMapper<Raw, Model> : Function<Raw, Model> {
      * @throws BaseException.EssentialParamMissingException When a required parameter is missing
      */
     private fun assertEssentialParams(raw: Raw) {
-        val fields = mutableListOf<String>()
-        checkParams(raw, fields)
+        val fields = checkRequiredParamsBeforeCopyValues(raw)
         if (fields.isNotEmpty()) {
             val params = fields.joinToString(prefix = "[", postfix = "]")
             throw BaseException.EssentialParamMissingException(
@@ -39,9 +38,9 @@ abstract class BaseRemoteMapper<Raw, Model> : Function<Raw, Model> {
      * Check if the specific implementation parameters were return from server
      *
      * @param raw The result from server
-     * @param missingFields The list used to add the missing parameters
+     * @return The missing parameters list
      */
-    protected abstract fun checkParams(raw: Raw, missingFields: MutableList<String>)
+    protected abstract fun checkRequiredParamsBeforeCopyValues(raw: Raw): List<String>
 
     /**
      * Create a [Model] using the values in [Raw]
@@ -49,5 +48,5 @@ abstract class BaseRemoteMapper<Raw, Model> : Function<Raw, Model> {
      * @param raw The result from server
      * @return A model with the raw's values
      */
-    protected abstract fun copyValues(raw: Raw): Model
+    protected abstract fun copyValuesAfterCheckRequiredParams(raw: Raw): Model
 }

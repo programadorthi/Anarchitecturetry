@@ -1,15 +1,14 @@
 package br.com.programadorthi.anarchtecturetry.blockchain.data.remote
 
-import br.com.programadorthi.base.remote.BaseRemoteMapper
 import br.com.programadorthi.anarchtecturetry.blockchain.domain.Blockchain
+import br.com.programadorthi.base.remote.BaseRemoteMapper
 import java.math.BigDecimal
 import java.util.*
 
-class BlockchainRemoteMapper :
-    BaseRemoteMapper<BlockchainResponseRaw, List<Blockchain>>() {
+class BlockchainRemoteMapper : BaseRemoteMapper<BlockchainResponseRaw, List<Blockchain>>() {
 
-    override fun checkParams(raw: BlockchainResponseRaw, missingFields: MutableList<String>) {
-
+    override fun checkRequiredParamsBeforeCopyValues(raw: BlockchainResponseRaw): List<String> {
+        val missingFields = mutableListOf<String>()
         if (raw.status == null) {
             missingFields.add("status")
         }
@@ -17,10 +16,10 @@ class BlockchainRemoteMapper :
         if (raw.values == null) {
             missingFields.add("values")
         }
-
+        return missingFields
     }
 
-    override fun copyValues(raw: BlockchainResponseRaw): List<Blockchain> {
+    override fun copyValuesAfterCheckRequiredParams(raw: BlockchainResponseRaw): List<Blockchain> {
         val values = raw.values!!
         if (values.isEmpty()) {
             return emptyList()
