@@ -26,7 +26,7 @@ ext {
     room                = '2.0.0'
 
     // Third party libraries
-    dagger2   = '2.23.1'
+    koin      = '2.0.1'
     moshi     = '1.8.0'
     okHttp    = '3.12.0'
     retrofit2 = '2.5.0'
@@ -57,10 +57,8 @@ ext {
 
             core                            : "androidx.core:core:${core}",
 
-            dagger2                         : "com.google.dagger:dagger:${dagger2}",
-            dagger2AndroidProcessor         : "com.google.dagger:dagger-android-processor:${dagger2}",
-            dagger2AndroidSupport           : "com.google.dagger:dagger-android-support:${dagger2}",
-            dagger2Compiler                 : "com.google.dagger:dagger-compiler:${dagger2}",
+            koinAndroid                     : "org.koin:koin-android:${koin}",
+            koinViewModel                   : "org.koin:koin-androidx-viewmodel:${koin}",
 
             kotlinJdk                       : "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${kotlin_version}",
 
@@ -106,6 +104,8 @@ ext {
             espressoIntents     : "androidx.test.espresso:espresso-intents:${espresso}",
 
             junit               : "junit:junit:${junit}",
+
+            koinTest            : "org.koin:koin-test:${koin}",
 
             mockk               : "io.mockk:mockk:${mockk}",
             mockkAndroid        : "io.mockk:mockk-android:${mockk}",

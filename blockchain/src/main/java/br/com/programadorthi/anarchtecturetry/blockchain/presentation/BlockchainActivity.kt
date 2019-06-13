@@ -5,36 +5,37 @@ import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelProviders
-import br.com.programadorthi.anarchtecturetry.R as MainR
 import br.com.programadorthi.anarchtecturetry.blockchain.R
-import br.com.programadorthi.anarchtecturetry.blockchain.di.inject
+import br.com.programadorthi.anarchtecturetry.blockchain.di.blockchainModule
 import br.com.programadorthi.anarchtecturetry.blockchain.presentation.adapter.BlockchainAdapter
 import br.com.programadorthi.base.exception.BaseException
 import br.com.programadorthi.base.extension.setVisible
 import br.com.programadorthi.base.presentation.ViewState
 import kotlinx.android.synthetic.main.activity_blockchain.*
-import javax.inject.Inject
+import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.koin.core.context.loadKoinModules
+import org.koin.core.context.unloadKoinModules
+import br.com.programadorthi.anarchtecturetry.R as MainR
 
 class BlockchainActivity : AppCompatActivity() {
 
-    @Inject
-    lateinit var viewModelFactory: ViewModelProvider.Factory
+    private val blockchainViewModel: BlockchainViewModel by viewModel()
 
     private val blockchainAdapter = BlockchainAdapter()
 
-    private lateinit var blockchainViewModel: BlockchainViewModel
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        inject()
+        loadKoinModules(blockchainModule)
 
         setContentView(R.layout.activity_blockchain)
 
         initRecyclerView()
         initViewModel()
+    }
+
+    override fun onDestroy() {
+        unloadKoinModules(blockchainModule)
+        super.onDestroy()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -56,10 +57,6 @@ class BlockchainActivity : AppCompatActivity() {
     }
 
     private fun initViewModel() {
-        blockchainViewModel = ViewModelProviders
-            .of(this, viewModelFactory)
-            .get(BlockchainViewModel::class.java)
-
         blockchainViewModel.currentMarketPrice.observe(this, Observer { state ->
             updateCurrentMarketPrice(state)
         })

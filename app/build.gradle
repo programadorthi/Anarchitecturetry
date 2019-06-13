@@ -81,9 +81,9 @@ dependencies {
     // Architecture components
     implementation rootProject.ext.commonDependencies.lifecycleExtensions
 
-    // Dagger 2
-    implementation rootProject.ext.commonDependencies.dagger2
-    kapt rootProject.ext.commonDependencies.dagger2Compiler
+    // Koin
+    implementation rootProject.ext.commonDependencies.koinAndroid
+    implementation rootProject.ext.commonDependencies.koinViewModel
 
     // Kotlin
     implementation rootProject.ext.commonDependencies.kotlinJdk
@@ -128,5 +128,5 @@ dependencies {
     androidTestImplementation rootProject.ext.testingDependencies.espressoContrib
     androidTestImplementation rootProject.ext.testingDependencies.espressoIntents
     androidTestImplementation rootProject.ext.testingDependencies.androidTestArchCore
-    kaptAndroidTest rootProject.ext.commonDependencies.dagger2Compiler
+    androidTestImplementation rootProject.ext.testingDependencies.koinTest
 }
