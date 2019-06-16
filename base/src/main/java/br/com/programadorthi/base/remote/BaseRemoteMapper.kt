@@ -1,7 +1,6 @@
 package br.com.programadorthi.base.remote
 
 import br.com.programadorthi.base.exception.BaseException
-import io.reactivex.functions.Function
 
 /**
  * Base mapper used for inheritance to map network response in feature model
@@ -9,10 +8,10 @@ import io.reactivex.functions.Function
  * @param Raw The result from server
  * @param Model The feature model to create from Raw
  */
-abstract class BaseRemoteMapper<Raw, Model> : Function<Raw, Model> {
+abstract class BaseRemoteMapper<Raw, Model> {
 
     @Throws(BaseException.EssentialParamMissingException::class)
-    override fun apply(raw: Raw): Model {
+    fun apply(raw: Raw): Model {
         assertEssentialParams(raw)
         return copyValues(raw)
     }
@@ -24,8 +23,7 @@ abstract class BaseRemoteMapper<Raw, Model> : Function<Raw, Model> {
      * @throws BaseException.EssentialParamMissingException When a required parameter is missing
      */
     private fun assertEssentialParams(raw: Raw) {
-        val fields = mutableListOf<String>()
-        checkParams(raw, fields)
+        val fields = checkParams(raw)
         if (fields.isNotEmpty()) {
             val params = fields.joinToString(prefix = "[", postfix = "]")
             throw BaseException.EssentialParamMissingException(
@@ -39,9 +37,9 @@ abstract class BaseRemoteMapper<Raw, Model> : Function<Raw, Model> {
      * Check if the specific implementation parameters were return from server
      *
      * @param raw The result from server
-     * @param missingFields The list used to add the missing parameters
+     * @return A missing parameters list or empty when is all ok
      */
-    protected abstract fun checkParams(raw: Raw, missingFields: MutableList<String>)
+    protected abstract fun checkParams(raw: Raw): List<String>
 
     /**
      * Create a [Model] using the values in [Raw]

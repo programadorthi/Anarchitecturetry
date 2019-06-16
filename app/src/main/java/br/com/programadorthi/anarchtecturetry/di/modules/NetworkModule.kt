@@ -9,7 +9,6 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Converter
 import retrofit2.Retrofit
-import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.moshi.MoshiConverterFactory
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
@@ -53,8 +52,6 @@ object NetworkModule {
             okHttpClientBuilder.addInterceptor(httpLoggingInterceptor)
         }
 
-        //okHttpClientBuilder.addInterceptor(auth)
-
         return okHttpClientBuilder.build()
     }
 
@@ -68,7 +65,6 @@ object NetworkModule {
 
         return Retrofit.Builder()
             .baseUrl(BuildConfig.API_BASE_URL)
-            .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
             .addConverterFactory(converter)
             .client(httpClient)
             .build()

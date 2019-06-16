@@ -1,68 +1,63 @@
 package br.com.programadorthi.base.remote
 
 import br.com.programadorthi.base.exception.BaseException
-import io.reactivex.Completable
-import io.reactivex.Scheduler
-import io.reactivex.Single
-import io.reactivex.functions.Consumer
-import io.reactivex.functions.Function
+import br.com.programadorthi.base.exception.CrashConsumer
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.withContext
 
 class RemoteExecutorImpl(
-    private val crashConsumer: Consumer<Throwable>,
+    private val crashConsumer: CrashConsumer,
     private val networkHandler: NetworkHandler,
-    private val scheduler: Scheduler
+    private val dispatcher: CoroutineDispatcher
 ) : RemoteExecutor {
 
-    /**
-     * Check for internet connection and execute the body function or emit an exception
-     *
-     * @param action Another function to execute when there is internet connection
-     * @return An [Completable] with [BaseException.NoInternetConnectionException] when there is no internet
-     * connection or with the body function result
-     */
-    override fun checkConnectionAndThenComplete(action: Completable): Completable {
-        return when (networkHandler.hasInternetConnection()) {
-            false -> Completable.error(BaseException.NoInternetConnectionException())
-            true -> action
-                .subscribeOn(scheduler)
-                .doOnError(crashConsumer)
+    override suspend fun checkConnectionAndThenDone(action: suspend () -> Unit) {
+        validateInternetConnection()
+
+        withContext(dispatcher) {
+            try {
+                action()
+            } catch (ex: Throwable) {
+                crashConsumer.report(ex)
+                throw ex
+            }
         }
     }
 
-    /**
-     * Check for internet connection and execute the body function or emit an exception
-     *
-     * @param action Another function to execute when there is internet connection
-     * @return An [Completable] with [BaseException.NoInternetConnectionException] when there is no internet
-     * connection or with the body function result
-     */
-    override fun <T> checkConnectionAndThenSingle(action: Single<T>): Single<T> {
-        return when (networkHandler.hasInternetConnection()) {
-            false -> Single.error(BaseException.NoInternetConnectionException())
-            true -> action
-                .subscribeOn(scheduler)
-                .doOnError(crashConsumer)
+    override suspend fun <T> checkConnectionAndThenReturn(action: suspend () -> T): T {
+        validateInternetConnection()
+
+        return withContext(dispatcher) {
+            try {
+                action()
+            } catch (ex: Throwable) {
+                crashConsumer.report(ex)
+                throw ex
+            }
         }
     }
 
-    /**
-     * Check for internet connection, execute the body function and map the result or emit an exception
-     *
-     * @param mapper A function to map values from server to feature models
-     * @param action Another function to execute when there is internet connection
-     * @return An [Completable] with [BaseException.NoInternetConnectionException] when there is no internet
-     * connection or with the body function result
-     */
-    override fun <T, R> checkConnectionAndThenMapper(
-        mapper: Function<T, R>,
-        action: Single<T>
-    ): Single<R> {
-        return when (networkHandler.hasInternetConnection()) {
-            false -> Single.error(BaseException.NoInternetConnectionException())
-            true -> action
-                .subscribeOn(scheduler)
-                .map(mapper)
-                .doOnError(crashConsumer)
+    override suspend fun <T, R> checkConnectionMapperAndThenReturn(
+        mapper: BaseRemoteMapper<T, R>,
+        action: suspend () -> T
+    ): R {
+        validateInternetConnection()
+
+        return withContext(dispatcher) {
+            try {
+                val response = action()
+                mapper.apply(response)
+            } catch (ex: Throwable) {
+                crashConsumer.report(ex)
+                throw ex
+            }
+        }
+    }
+
+    @Throws(BaseException.NoInternetConnectionException::class)
+    private fun validateInternetConnection() {
+        if (!networkHandler.hasInternetConnection()) {
+            throw BaseException.NoInternetConnectionException
         }
     }
 }

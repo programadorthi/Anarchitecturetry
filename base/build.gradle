@@ -61,15 +61,13 @@ dependencies {
 
     // Kotlin
     implementation rootProject.ext.commonDependencies.kotlinJdk
+    implementation rootProject.ext.commonDependencies.kotlinCoroutines
 
     // Moshi
     implementation rootProject.ext.commonDependencies.moshi
 
     // Room
     implementation rootProject.ext.commonDependencies.roomRuntime
-
-    // RxJava 2
-    implementation rootProject.ext.commonDependencies.rxJava2
 
     // Unit Tests
     testImplementation rootProject.ext.testingDependencies.junit

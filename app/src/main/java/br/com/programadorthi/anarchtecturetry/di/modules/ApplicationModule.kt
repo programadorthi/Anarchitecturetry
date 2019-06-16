@@ -2,24 +2,26 @@ package br.com.programadorthi.anarchtecturetry.di.modules
 
 import android.content.Context
 import br.com.programadorthi.anarchtecturetry.firebase.CrashlyticsConsumer
+import br.com.programadorthi.base.adapter.BigDecimalJsonAdapter
+import br.com.programadorthi.base.exception.CrashConsumer
 import br.com.programadorthi.base.formatter.DateFormatter
 import br.com.programadorthi.base.formatter.MoneyFormatter
-import br.com.programadorthi.base.adapter.BigDecimalJsonAdapter
+import br.com.programadorthi.base.formatter.TextFormatter
 import br.com.programadorthi.base.remote.NetworkHandler
 import br.com.programadorthi.base.remote.NetworkHandlerImpl
 import br.com.programadorthi.base.remote.RemoteExecutor
 import br.com.programadorthi.base.remote.RemoteExecutorImpl
-import br.com.programadorthi.base.formatter.TextFormatter
-import br.com.programadorthi.base.utils.ANDROID_SCHEDULER
+import br.com.programadorthi.base.utils.ANDROID_DISPATCHER
 import br.com.programadorthi.base.utils.DATE_FORMATTER
-import br.com.programadorthi.base.utils.IO_SCHEDULER
+import br.com.programadorthi.base.utils.IO_DISPATCHER
 import br.com.programadorthi.base.utils.MONEY_FORMATTER
 import com.squareup.moshi.Moshi
 import dagger.Module
 import dagger.Provides
-import io.reactivex.Scheduler
-import io.reactivex.functions.Consumer
-import io.reactivex.schedulers.Schedulers
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import java.math.BigDecimal
 import java.util.*
 import javax.inject.Named
@@ -29,14 +31,14 @@ import javax.inject.Singleton
 object ApplicationModule {
 
     @Provides
-    @Named(ANDROID_SCHEDULER)
+    @Named(ANDROID_DISPATCHER)
     @JvmStatic
-    fun provideAndroidScheduler(): Scheduler = Schedulers.computation()
+    fun provideAndroidDispatcher(): CoroutineDispatcher = Dispatchers.Main
 
     @Provides
-    @Named(IO_SCHEDULER)
+    @Named(IO_DISPATCHER)
     @JvmStatic
-    fun provideIOScheduler(): Scheduler = Schedulers.io()
+    fun provideIODispatcher(): CoroutineDispatcher = Dispatchers.IO
 
     @Provides
     @Named(DATE_FORMATTER)
@@ -50,7 +52,12 @@ object ApplicationModule {
 
     @Provides
     @JvmStatic
-    fun provideCrashlyticsConsumer(): Consumer<Throwable> = CrashlyticsConsumer()
+    fun provideCoroutineScope(@Named(IO_DISPATCHER) dispatcher: CoroutineDispatcher): CoroutineScope =
+        CoroutineScope(dispatcher + Job())
+
+    @Provides
+    @JvmStatic
+    fun provideCrashlyticsConsumer(): CrashConsumer = CrashlyticsConsumer()
 
     @Provides
     @JvmStatic
@@ -59,10 +66,10 @@ object ApplicationModule {
     @Provides
     @JvmStatic
     fun provideRemoteExecutor(
-        crashConsumer: Consumer<Throwable>,
+        crashConsumer: CrashConsumer,
         networkHandler: NetworkHandler,
-        @Named(IO_SCHEDULER) scheduler: Scheduler
-    ): RemoteExecutor = RemoteExecutorImpl(crashConsumer, networkHandler, scheduler)
+        @Named(IO_DISPATCHER) dispatcher: CoroutineDispatcher
+    ): RemoteExecutor = RemoteExecutorImpl(crashConsumer, networkHandler, dispatcher)
 
     @Provides
     @Singleton

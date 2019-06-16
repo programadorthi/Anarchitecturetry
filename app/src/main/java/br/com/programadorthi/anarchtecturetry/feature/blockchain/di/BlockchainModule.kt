@@ -2,7 +2,9 @@ package br.com.programadorthi.anarchtecturetry.feature.blockchain.di
 
 import br.com.programadorthi.anarchtecturetry.database.MainDatabase
 import br.com.programadorthi.anarchtecturetry.feature.blockchain.data.BlockchainRepositoryImpl
-import br.com.programadorthi.anarchtecturetry.feature.blockchain.data.local.*
+import br.com.programadorthi.anarchtecturetry.feature.blockchain.data.local.BlockchainDao
+import br.com.programadorthi.anarchtecturetry.feature.blockchain.data.local.BlockchainLocalRepository
+import br.com.programadorthi.anarchtecturetry.feature.blockchain.data.local.BlockchainLocalRepositoryImpl
 import br.com.programadorthi.anarchtecturetry.feature.blockchain.data.remote.*
 import br.com.programadorthi.anarchtecturetry.feature.blockchain.domain.Blockchain
 import br.com.programadorthi.anarchtecturetry.feature.blockchain.domain.BlockchainInteractor
@@ -12,13 +14,13 @@ import br.com.programadorthi.anarchtecturetry.feature.blockchain.presentation.Bl
 import br.com.programadorthi.base.formatter.TextFormatter
 import br.com.programadorthi.base.remote.BaseRemoteMapper
 import br.com.programadorthi.base.remote.RemoteExecutor
-import br.com.programadorthi.base.utils.ANDROID_SCHEDULER
 import br.com.programadorthi.base.utils.DATE_FORMATTER
+import br.com.programadorthi.base.utils.IO_DISPATCHER
 import br.com.programadorthi.base.utils.MONEY_FORMATTER
 import dagger.Module
 import dagger.Provides
-import io.reactivex.Scheduler
-import io.reactivex.functions.Function
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
 import retrofit2.Retrofit
 import java.math.BigDecimal
 import java.util.*
@@ -37,25 +39,10 @@ object BlockchainModule {
 
     @Provides
     @JvmStatic
-    fun provideBlockchainCurrentValueLocalMapper(): Function<List<BlockchainCurrentValueEntity>, Blockchain> =
-        BlockchainCurrentValueLocalMapper()
-
-    @Provides
-    @JvmStatic
-    fun provideBlockchainLocalMapper(): Function<List<BlockchainEntity>, List<Blockchain>> =
-        BlockchainLocalMapper()
-
-    @Provides
-    @JvmStatic
     fun provideBlockchainLocalRepository(
         blockchainDao: BlockchainDao,
-        blockchainCurrentValueLocalMapper: Function<List<BlockchainCurrentValueEntity>, Blockchain>,
-        blockchainLocalMapper: Function<List<BlockchainEntity>, List<Blockchain>>
-    ): BlockchainLocalRepository = BlockchainLocalRepositoryImpl(
-        blockchainDao,
-        blockchainCurrentValueLocalMapper,
-        blockchainLocalMapper
-    )
+        @Named(IO_DISPATCHER) dispatcher: CoroutineDispatcher
+    ): BlockchainLocalRepository = BlockchainLocalRepositoryImpl(blockchainDao, dispatcher)
 
     // =================================================
     // =============== DATA REMOTE =====================
@@ -99,8 +86,7 @@ object BlockchainModule {
     fun provideBlockchainRepository(
         blockchainLocalRepository: BlockchainLocalRepository,
         blockchainRemoteRepository: BlockchainRemoteRepository
-    ): BlockchainRepository =
-        BlockchainRepositoryImpl(blockchainLocalRepository, blockchainRemoteRepository)
+    ): BlockchainRepository = BlockchainRepositoryImpl(blockchainLocalRepository, blockchainRemoteRepository)
 
     @Provides
     @JvmStatic
@@ -116,10 +102,10 @@ object BlockchainModule {
     @JvmStatic
     fun provideBlockchainViewModel(
         blockchainInteractor: BlockchainInteractor,
+        coroutineScope: CoroutineScope,
         @Named(DATE_FORMATTER) dateFormatter: TextFormatter<Date>,
-        @Named(MONEY_FORMATTER) moneyFormatter: TextFormatter<BigDecimal>,
-        @Named(ANDROID_SCHEDULER) scheduler: Scheduler
+        @Named(MONEY_FORMATTER) moneyFormatter: TextFormatter<BigDecimal>
     ): BlockchainViewModel =
-        BlockchainViewModel(blockchainInteractor, dateFormatter, moneyFormatter, scheduler)
+        BlockchainViewModel(blockchainInteractor, dateFormatter, moneyFormatter, coroutineScope)
 
 }

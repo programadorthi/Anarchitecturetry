@@ -88,6 +88,7 @@ dependencies {
 
     // Kotlin
     implementation rootProject.ext.commonDependencies.kotlinJdk
+    implementation rootProject.ext.commonDependencies.kotlinCoroutines
 
     // Moshi
     implementation rootProject.ext.commonDependencies.moshi
@@ -99,16 +100,12 @@ dependencies {
 
     // Retrofit
     implementation rootProject.ext.commonDependencies.retrofit2
-    implementation rootProject.ext.commonDependencies.retrofitRxAdapter
     implementation rootProject.ext.commonDependencies.retrofitConverterMoshi
 
     // Room
     implementation rootProject.ext.commonDependencies.roomRuntime
-    implementation rootProject.ext.commonDependencies.roomRxJava2
+    implementation rootProject.ext.commonDependencies.roomKtx
     kapt rootProject.ext.commonDependencies.roomCompiler
-
-    // RxJava 2
-    implementation rootProject.ext.commonDependencies.rxJava2
 
     // Timber
     implementation rootProject.ext.developmentDependencies.timber

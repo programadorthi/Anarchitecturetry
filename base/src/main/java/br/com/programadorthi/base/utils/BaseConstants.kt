@@ -2,9 +2,8 @@
 
 package br.com.programadorthi.base.utils
 
-const val ANDROID_SCHEDULER     = "ANDROID_SCHEDULER"
-const val COMPUTATION_SCHEDULER = "COMPUTATION_SCHEDULER"
-const val IO_SCHEDULER          = "IO_SCHEDULER"
+const val ANDROID_DISPATCHER = "ANDROID_DISPATCHER"
+const val IO_DISPATCHER      = "IO_DISPATCHER"
 
 const val DATE_FORMATTER  = "DATE_FORMATTER"
 const val MONEY_FORMATTER = "MONEY_FORMATTER"

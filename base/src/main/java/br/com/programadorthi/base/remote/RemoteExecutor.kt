@@ -1,14 +1,16 @@
 package br.com.programadorthi.base.remote
 
-import io.reactivex.Completable
-import io.reactivex.Single
-import io.reactivex.functions.Function
+import br.com.programadorthi.base.exception.BaseException
 
 interface RemoteExecutor {
 
-    fun checkConnectionAndThenComplete(action: Completable): Completable
+    @Throws(BaseException::class)
+    suspend fun checkConnectionAndThenDone(action: suspend () -> Unit)
 
-    fun <T> checkConnectionAndThenSingle(action: Single<T>): Single<T>
+    @Throws(BaseException::class)
+    suspend fun <T> checkConnectionAndThenReturn(action: suspend () -> T): T
 
-    fun <T, R> checkConnectionAndThenMapper(mapper: Function<T, R>, action: Single<T>): Single<R>
+    @Throws(BaseException::class)
+    suspend fun <T, R> checkConnectionMapperAndThenReturn(mapper: BaseRemoteMapper<T, R>, action: suspend () -> T): R
+
 }

@@ -1,43 +1,62 @@
 package br.com.programadorthi.anarchtecturetry.feature.blockchain.data.local
 
 import br.com.programadorthi.anarchtecturetry.feature.blockchain.domain.Blockchain
-import io.reactivex.Flowable
-import io.reactivex.functions.Function
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.withContext
+import java.util.*
 
 class BlockchainLocalRepositoryImpl(
     private val blockchainDao: BlockchainDao,
-    private val blockchainCurrentValueLocalMapper: Function<List<BlockchainCurrentValueEntity>, Blockchain>,
-    private val blockchainLocalMapper: Function<List<BlockchainEntity>, List<Blockchain>>
+    private val dispatcher: CoroutineDispatcher
 ) : BlockchainLocalRepository {
 
-    override fun getCurrentMarketPrice(): Flowable<Blockchain> {
-        return blockchainDao
-            .getCurrentValue()
-            .map(blockchainCurrentValueLocalMapper)
-    }
+    override suspend fun getCurrentMarketPrice(): Blockchain = withContext(dispatcher) {
+        val currentValues = blockchainDao.getCurrentValue()
+        if (currentValues.isEmpty()) {
+            return@withContext Blockchain.EMPTY
+        }
 
-    override fun getAllMarketPrices(): Flowable<List<Blockchain>> {
-        return blockchainDao
-            .getHistoricalMarketPrices()
-            .map(blockchainLocalMapper)
-    }
-
-    override fun insertCurrentValueInTransaction(blockchain: Blockchain) {
-        val entity = BlockchainCurrentValueEntity(
-            timestamp = blockchain.date.time,
-            value = blockchain.value
+        val entity = currentValues.first()
+        return@withContext Blockchain(
+            date = Date(entity.timestamp),
+            value = entity.value
         )
-        blockchainDao.insertCurrentValueInTransaction(entity)
     }
 
-    override fun updateMarketPricesInTransaction(prices: List<Blockchain>) {
-        val entities = prices.map { blockchain ->
-            BlockchainEntity(
+    override suspend fun getAllMarketPrices(): List<Blockchain> = withContext(dispatcher) {
+        val prices = blockchainDao.getHistoricalMarketPrices()
+        if (prices.isEmpty()) {
+            return@withContext emptyList<Blockchain>()
+        }
+
+        return@withContext prices.map { entity ->
+            Blockchain(
+                date = Date(entity.timestamp),
+                value = entity.value
+            )
+        }
+    }
+
+    override suspend fun insertCurrentValueInTransaction(blockchain: Blockchain) {
+        withContext(dispatcher) {
+            val entity = BlockchainCurrentValueEntity(
                 timestamp = blockchain.date.time,
                 value = blockchain.value
             )
+            blockchainDao.insertCurrentValueInTransaction(entity)
         }
-        blockchainDao.updateMarketPricesInTransaction(entities)
+    }
+
+    override suspend fun updateMarketPricesInTransaction(prices: List<Blockchain>) {
+        withContext(dispatcher) {
+            val entities = prices.map { blockchain ->
+                BlockchainEntity(
+                    timestamp = blockchain.date.time,
+                    value = blockchain.value
+                )
+            }
+            blockchainDao.updateMarketPricesInTransaction(entities)
+        }
     }
 
 }

@@ -1,13 +1,13 @@
 package br.com.programadorthi.anarchtecturetry.feature.blockchain.data.remote
 
-import br.com.programadorthi.base.remote.BaseRemoteMapper
 import br.com.programadorthi.anarchtecturetry.feature.blockchain.domain.Blockchain
+import br.com.programadorthi.base.remote.BaseRemoteMapper
 import java.util.*
 
-class BlockchainCurrentValueRemoteMapper :
-    BaseRemoteMapper<BlockchainCurrentValueRaw, Blockchain>() {
+class BlockchainCurrentValueRemoteMapper : BaseRemoteMapper<BlockchainCurrentValueRaw, Blockchain>() {
 
-    override fun checkParams(raw: BlockchainCurrentValueRaw, missingFields: MutableList<String>) {
+    override fun checkParams(raw: BlockchainCurrentValueRaw): List<String> {
+        val missingFields = mutableListOf<String>()
         if (raw.timestamp == null) {
             missingFields.add("timestamp")
         }
@@ -15,6 +15,7 @@ class BlockchainCurrentValueRemoteMapper :
         if (raw.value == null) {
             missingFields.add("market_price_usd")
         }
+        return missingFields
     }
 
     override fun copyValues(raw: BlockchainCurrentValueRaw): Blockchain {

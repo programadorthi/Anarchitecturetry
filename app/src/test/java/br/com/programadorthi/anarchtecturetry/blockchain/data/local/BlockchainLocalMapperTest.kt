@@ -1,7 +1,6 @@
 package br.com.programadorthi.anarchtecturetry.blockchain.data.local
 
 import br.com.programadorthi.anarchtecturetry.feature.blockchain.data.local.BlockchainEntity
-import br.com.programadorthi.anarchtecturetry.feature.blockchain.data.local.BlockchainLocalMapper
 import br.com.programadorthi.anarchtecturetry.feature.blockchain.domain.Blockchain
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
