@@ -8,6 +8,7 @@ import br.com.programadorthi.anarchtecturetry.feature.blockchain.presentation.Bl
 import br.com.programadorthi.anarchtecturetry.feature.blockchain.presentation.BlockchainViewModel
 import br.com.programadorthi.base.formatter.TextFormatter
 import br.com.programadorthi.base.presentation.ViewState
+import br.com.programadorthi.base.shared.FailureType
 import br.com.programadorthi.base.shared.LayerResult
 import io.mockk.*
 import kotlinx.coroutines.CoroutineScope
@@ -125,18 +126,16 @@ class BlockchainViewModelTest {
         val observerCurrentMarketPrice = mockCurrentMarketPriceObserver()
         val observerAllMarketPrices = mockAllMarketPricesObserver()
 
-        val expected = IllegalStateException("this is an exception")
-
-        coEvery { blockchainInteractor.getCurrentMarketPrice() } returns LayerResult.failure(expected)
-        coEvery { blockchainInteractor.getAllMarketPrices() } returns LayerResult.failure(expected)
+        coEvery { blockchainInteractor.getCurrentMarketPrice() } returns LayerResult.failure(FailureType.Unknown)
+        coEvery { blockchainInteractor.getAllMarketPrices() } returns LayerResult.failure(FailureType.Unknown)
 
         viewModel.initialize()
 
         verify(exactly = 2) { observerCurrentMarketPrice.onChanged(any()) }
         verify(exactly = 2) { observerAllMarketPrices.onChanged(any()) }
 
-        verify(exactly = 1) { observerCurrentMarketPrice.onChanged(ViewState.Error(expected)) }
-        verify(exactly = 1) { observerAllMarketPrices.onChanged(ViewState.Error(expected)) }
+        verify(exactly = 1) { observerCurrentMarketPrice.onChanged(ViewState.Failure(FailureType.Unknown)) }
+        verify(exactly = 1) { observerAllMarketPrices.onChanged(ViewState.Failure(FailureType.Unknown)) }
 
         verify(exactly = 1) { observerCurrentMarketPrice.onChanged(ofType(currentMarketPriceLoadingClass)) }
         verify(exactly = 1) { observerAllMarketPrices.onChanged(ofType(allMarketPricesLoadingClass)) }
@@ -149,18 +148,16 @@ class BlockchainViewModelTest {
         val observerCurrentMarketPrice = mockCurrentMarketPriceObserver()
         val observerAllMarketPrices = mockAllMarketPricesObserver()
 
-        val expected = IllegalStateException("this is an exception")
-
-        coEvery { blockchainInteractor.getCurrentMarketPrice() } returns LayerResult.failure(expected)
-        coEvery { blockchainInteractor.getAllMarketPrices() } returns LayerResult.failure(expected)
+        coEvery { blockchainInteractor.getCurrentMarketPrice() } returns LayerResult.failure(FailureType.Unknown)
+        coEvery { blockchainInteractor.getAllMarketPrices() } returns LayerResult.failure(FailureType.Unknown)
 
         viewModel.initialize()
 
         verify(exactly = 2) { observerCurrentMarketPrice.onChanged(any()) }
         verify(exactly = 2) { observerAllMarketPrices.onChanged(any()) }
 
-        verify(exactly = 1) { observerCurrentMarketPrice.onChanged(ViewState.Error(expected)) }
-        verify(exactly = 1) { observerAllMarketPrices.onChanged(ViewState.Error(expected)) }
+        verify(exactly = 1) { observerCurrentMarketPrice.onChanged(ViewState.Failure(FailureType.Unknown)) }
+        verify(exactly = 1) { observerAllMarketPrices.onChanged(ViewState.Failure(FailureType.Unknown)) }
 
         verify(exactly = 1) { observerCurrentMarketPrice.onChanged(ofType(currentMarketPriceLoadingClass)) }
         verify(exactly = 1) { observerAllMarketPrices.onChanged(ofType(allMarketPricesLoadingClass)) }
@@ -189,18 +186,16 @@ class BlockchainViewModelTest {
         val observerCurrentMarketPrice = mockCurrentMarketPriceObserver()
         val observerAllMarketPrices = mockAllMarketPricesObserver()
 
-        val expected = IllegalStateException("this is an exception")
-
-        coEvery { blockchainInteractor.getCurrentMarketPrice() } returns LayerResult.failure(expected)
-        coEvery { blockchainInteractor.getAllMarketPrices() } returns LayerResult.failure(expected)
+        coEvery { blockchainInteractor.getCurrentMarketPrice() } returns LayerResult.failure(FailureType.Unknown)
+        coEvery { blockchainInteractor.getAllMarketPrices() } returns LayerResult.failure(FailureType.Unknown)
 
         viewModel.refresh()
 
         verify(atMost = 2) { observerCurrentMarketPrice.onChanged(any()) }
         verify(atMost = 2) { observerAllMarketPrices.onChanged(any()) }
 
-        verify(exactly = 1) { observerCurrentMarketPrice.onChanged(ViewState.Error(expected)) }
-        verify(exactly = 1) { observerAllMarketPrices.onChanged(ViewState.Error(expected)) }
+        verify(exactly = 1) { observerCurrentMarketPrice.onChanged(ViewState.Failure(FailureType.Unknown)) }
+        verify(exactly = 1) { observerAllMarketPrices.onChanged(ViewState.Failure(FailureType.Unknown)) }
 
         verify(exactly = 1) { observerCurrentMarketPrice.onChanged(ofType(currentMarketPriceLoadingClass)) }
         verify(exactly = 1) { observerAllMarketPrices.onChanged(ofType(allMarketPricesLoadingClass)) }

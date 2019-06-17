@@ -2,9 +2,9 @@ package br.com.programadorthi.anarchtecturetry.blockchain.data.remote
 
 import br.com.programadorthi.anarchtecturetry.feature.blockchain.data.remote.*
 import br.com.programadorthi.anarchtecturetry.feature.blockchain.domain.Blockchain
-import br.com.programadorthi.base.exception.BaseException
 import br.com.programadorthi.base.remote.BaseRemoteMapper
 import br.com.programadorthi.base.remote.RemoteExecutor
+import br.com.programadorthi.base.shared.FailureType
 import br.com.programadorthi.base.shared.LayerResult
 import io.mockk.coEvery
 import io.mockk.mockk
@@ -46,35 +46,26 @@ class BlockchainRemoteRepositoryImplTest {
                 mapper = any<BaseRemoteMapper<BlockchainCurrentValueRaw, Blockchain>>(),
                 action = any()
             )
-        } returns LayerResult.failure(BaseException.NoInternetConnectionException)
+        } returns LayerResult.failure(FailureType.NoInternetConnection)
 
         runBlocking {
             val result = blockchainRemoteRepository.getCurrentMarketPrice()
-            assert(result is LayerResult.Failure && result.exception is BaseException.NoInternetConnectionException)
+            assert(result is LayerResult.Failure && result.type is FailureType.NoInternetConnection)
         }
     }
 
     @Test
     fun `should get a LayerResult Failure with EssentialParamMissingException when all API response is invalid`() {
-        val expected = BaseException.EssentialParamMissingException(
-            missingParam = listOf("field").joinToString(prefix = "[", postfix = "]"),
-            rawObject = raw
-        )
-
         coEvery {
             remoteExecutor.checkConnectionMapperAndThenReturn(
                 mapper = any<BaseRemoteMapper<BlockchainCurrentValueRaw, Blockchain>>(),
                 action = any()
             )
-        } returns LayerResult.failure(expected)
+        } returns LayerResult.failure(FailureType.EssentialParamsMissing)
 
         runBlocking {
             val result = blockchainRemoteRepository.getCurrentMarketPrice()
-            assert(
-                result is LayerResult.Failure &&
-                        result.exception is BaseException.EssentialParamMissingException &&
-                        result.exception.message == "[field] are missing in received object: $raw"
-            )
+            assert(result is LayerResult.Failure && result.type is FailureType.EssentialParamsMissing)
         }
     }
 

@@ -3,6 +3,7 @@ package br.com.programadorthi.anarchtecturetry.blockchain.data.local
 import br.com.programadorthi.anarchtecturetry.feature.blockchain.data.local.*
 import br.com.programadorthi.anarchtecturetry.feature.blockchain.domain.Blockchain
 import br.com.programadorthi.base.exception.CrashConsumer
+import br.com.programadorthi.base.shared.FailureType
 import br.com.programadorthi.base.shared.LayerResult
 import io.mockk.Runs
 import io.mockk.coEvery
@@ -38,7 +39,7 @@ class BlockchainLocalRepositoryImplTest {
 
         runBlocking {
             val result = blockchainLocalRepository.getCurrentMarketPrice()
-            assert(result is LayerResult.Failure && result.exception == expected)
+            assert(result is LayerResult.Failure && result.type == FailureType.Unknown)
         }
     }
 
@@ -81,7 +82,7 @@ class BlockchainLocalRepositoryImplTest {
 
         runBlocking {
             val result = blockchainLocalRepository.getAllMarketPrices()
-            assert(result is LayerResult.Failure && result.exception == expected)
+            assert(result is LayerResult.Failure && result.type == FailureType.Unknown)
         }
     }
 

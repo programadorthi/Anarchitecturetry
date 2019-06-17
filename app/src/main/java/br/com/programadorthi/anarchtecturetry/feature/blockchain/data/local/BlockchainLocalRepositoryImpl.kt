@@ -18,7 +18,7 @@ class BlockchainLocalRepositoryImpl(
             blockchainDao.getCurrentValue()
         } catch (ex: Exception) {
             crashConsumer.report(ex)
-            return@withContext LayerResult.failure<Blockchain>(ex)
+            return@withContext LayerResult.fromException(ex)
         }
 
         if (currentValues.isEmpty()) {
@@ -38,7 +38,7 @@ class BlockchainLocalRepositoryImpl(
             blockchainDao.getHistoricalMarketPrices()
         } catch (ex: Exception) {
             crashConsumer.report(ex)
-            return@withContext LayerResult.failure<List<Blockchain>>(ex)
+            return@withContext LayerResult.fromException(ex)
         }
 
         if (prices.isEmpty()) {
@@ -69,7 +69,7 @@ class BlockchainLocalRepositoryImpl(
                 LayerResult.success(true)
             } catch (ex: Exception) {
                 crashConsumer.report(ex)
-                LayerResult.failure<Boolean>(ex)
+                return@withContext LayerResult.fromException(ex)
             }
         }
 
@@ -90,7 +90,7 @@ class BlockchainLocalRepositoryImpl(
                 LayerResult.success(true)
             } catch (ex: Exception) {
                 crashConsumer.report(ex)
-                LayerResult.failure<Boolean>(ex)
+                return@withContext LayerResult.fromException(ex)
             }
         }
 

@@ -9,9 +9,9 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import br.com.programadorthi.anarchtecturetry.R
 import br.com.programadorthi.anarchtecturetry.feature.blockchain.presentation.adapter.BlockchainAdapter
-import br.com.programadorthi.base.exception.BaseException
 import br.com.programadorthi.base.extension.setVisible
 import br.com.programadorthi.base.presentation.ViewState
+import br.com.programadorthi.base.shared.FailureType
 import dagger.android.AndroidInjection
 import kotlinx.android.synthetic.main.activity_blockchain.*
 import javax.inject.Inject
@@ -78,7 +78,7 @@ class BlockchainActivity : AppCompatActivity() {
                     currentMarketPriceDate.text = getString(R.string.market_price_today, date)
                 }
             }
-            is ViewState.Error -> checkCurrentMarketError(state.error)
+            is ViewState.Failure -> checkCurrentMarketError(state.type)
         }
         updateCurrentMarketPriceFields(state)
     }
@@ -88,7 +88,7 @@ class BlockchainActivity : AppCompatActivity() {
             is ViewState.Complete -> {
                 blockchainAdapter.changeDataSet(state.result)
             }
-            is ViewState.Error -> checkMarketPricesError(state.error)
+            is ViewState.Failure -> checkMarketPricesError(state.type)
         }
         updateMarketPricesFields(state)
     }
@@ -96,27 +96,27 @@ class BlockchainActivity : AppCompatActivity() {
     private fun updateCurrentMarketPriceFields(state: ViewState<BlockchainViewData>?) {
         currentMarketPriceValue.setVisible(state is ViewState.Complete)
         currentMarketPriceDate.setVisible(state is ViewState.Complete)
-        currentMarketPriceErrorText.setVisible(state is ViewState.Error)
+        currentMarketPriceErrorText.setVisible(state is ViewState.Failure)
         currentMarketPricesProgressBar.setVisible(state is ViewState.Loading)
     }
 
     private fun updateMarketPricesFields(state: ViewState<List<BlockchainViewData>>?) {
         marketPricesRecyclerView.setVisible(state is ViewState.Complete)
-        marketPricesErrorText.setVisible(state is ViewState.Error)
+        marketPricesErrorText.setVisible(state is ViewState.Failure)
         marketPricesProgressBar.setVisible(state is ViewState.Loading)
     }
 
-    private fun checkCurrentMarketError(throwable: Throwable) {
-        val text = when (throwable) {
-            is BaseException.NoInternetConnectionException -> getString(R.string.shared_text_no_internet_connection)
+    private fun checkCurrentMarketError(failureType: FailureType) {
+        val text = when (failureType) {
+            is FailureType.NoInternetConnection -> getString(R.string.shared_text_no_internet_connection)
             else -> getString(R.string.shared_text_unknown_exception)
         }
         currentMarketPriceErrorText.text = text
     }
 
-    private fun checkMarketPricesError(throwable: Throwable) {
-        val text = when (throwable) {
-            is BaseException.NoInternetConnectionException -> getString(R.string.shared_text_no_internet_connection)
+    private fun checkMarketPricesError(failureType: FailureType) {
+        val text = when (failureType) {
+            is FailureType.NoInternetConnection -> getString(R.string.shared_text_no_internet_connection)
             else -> getString(R.string.shared_text_unknown_exception)
         }
         marketPricesErrorText.text = text

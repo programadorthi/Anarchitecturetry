@@ -51,7 +51,7 @@ class BlockchainViewModel(
             val state: ViewState<BlockchainViewData> =
                 when (val result = blockchainInteractor.getCurrentMarketPrice()) {
                     is LayerResult.Success -> ViewState.Complete(mapToBlockchainViewData(result.data))
-                    is LayerResult.Failure -> ViewState.Error(result.exception)
+                    is LayerResult.Failure -> ViewState.Failure(result.type)
                 }
             mutableCurrentMarketPrice.postValue(state)
         }
@@ -64,7 +64,7 @@ class BlockchainViewModel(
             val state: ViewState<List<BlockchainViewData>> =
                 when (val result = blockchainInteractor.getAllMarketPrices()) {
                     is LayerResult.Success -> ViewState.Complete(result.data.map(::mapToBlockchainViewData))
-                    is LayerResult.Failure -> ViewState.Error(result.exception)
+                    is LayerResult.Failure -> ViewState.Failure(result.type)
                 }
             mutableMarketPrices.postValue(state)
         }

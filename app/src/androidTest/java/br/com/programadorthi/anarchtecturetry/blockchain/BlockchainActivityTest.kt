@@ -7,6 +7,7 @@ import br.com.programadorthi.anarchtecturetry.feature.blockchain.presentation.Bl
 import br.com.programadorthi.anarchtecturetry.feature.blockchain.presentation.BlockchainViewData
 import br.com.programadorthi.anarchtecturetry.feature.blockchain.presentation.BlockchainViewModel
 import br.com.programadorthi.base.presentation.ViewState
+import br.com.programadorthi.base.shared.FailureType
 import io.mockk.Runs
 import io.mockk.every
 import io.mockk.just
@@ -127,7 +128,7 @@ class BlockchainActivityTest : BaseEspressoTest() {
     @Test
     fun whenStartActivityAndCurrentMarketPriceHasError_shouldShowCurrentMarketErrorText() {
         activityTestRule.activity.runOnUiThread {
-            currentMarketPrice.value = ViewState.Error(Exception())
+            currentMarketPrice.value = ViewState.Failure(FailureType.Unknown)
         }
 
         onViewWithId(resId = R.id.currentMarketPricesProgressBar)
@@ -146,7 +147,7 @@ class BlockchainActivityTest : BaseEspressoTest() {
     @Test
     fun whenStartActivityAndHistoricalMarketPricesHasError_shouldShowMarketPricesErrorText() {
         activityTestRule.activity.runOnUiThread {
-            marketPrices.value = ViewState.Error(Exception())
+            marketPrices.value = ViewState.Failure(FailureType.Unknown)
         }
 
         onViewWithId(resId = R.id.marketPricesProgressBar)

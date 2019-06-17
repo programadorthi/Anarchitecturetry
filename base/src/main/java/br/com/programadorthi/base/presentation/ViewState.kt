@@ -1,5 +1,7 @@
 package br.com.programadorthi.base.presentation
 
+import br.com.programadorthi.base.shared.FailureType
+
 /**
  * The current state of view action
  */
@@ -12,7 +14,7 @@ sealed class ViewState<T> {
     /**
      * The error state with a error
      */
-    data class Error<T>(val error: Throwable) : ViewState<T>()
+    data class Failure<T>(val type: FailureType) : ViewState<T>()
 
     /**
      * The loading state

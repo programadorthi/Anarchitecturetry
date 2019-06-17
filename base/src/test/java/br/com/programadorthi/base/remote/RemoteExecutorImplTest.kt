@@ -2,6 +2,7 @@ package br.com.programadorthi.base.remote
 
 import br.com.programadorthi.base.exception.BaseException
 import br.com.programadorthi.base.exception.CrashConsumer
+import br.com.programadorthi.base.shared.FailureType
 import br.com.programadorthi.base.shared.LayerResult
 import io.mockk.every
 import io.mockk.mockk
@@ -38,7 +39,7 @@ class RemoteExecutorImplTest {
 
         runBlocking {
             val result = remoteExecutor.checkConnectionAndThenDone {}
-            assert(result is LayerResult.Failure && result.exception is BaseException.NoInternetConnectionException)
+            assert(result is LayerResult.Failure && result.type is FailureType.NoInternetConnection)
         }
     }
 
@@ -51,7 +52,11 @@ class RemoteExecutorImplTest {
 
             verify(exactly = 1) { crashConsumer.report(ofType(BaseException.HttpCallException::class)) }
 
-            assert(result is LayerResult.Failure && result.exception is BaseException.HttpCallException)
+            assert(
+                result is LayerResult.Failure &&
+                        result.type is FailureType.HttpCall &&
+                        (result.type as FailureType.HttpCall).code == 500
+            )
         }
     }
 

@@ -5,6 +5,7 @@ import br.com.programadorthi.anarchtecturetry.feature.blockchain.data.local.Bloc
 import br.com.programadorthi.anarchtecturetry.feature.blockchain.data.remote.BlockchainRemoteRepository
 import br.com.programadorthi.anarchtecturetry.feature.blockchain.domain.Blockchain
 import br.com.programadorthi.anarchtecturetry.feature.blockchain.domain.BlockchainRepository
+import br.com.programadorthi.base.shared.FailureType
 import br.com.programadorthi.base.shared.LayerResult
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -35,7 +36,7 @@ class BlockchainRepositoryImplTest {
             value = BigDecimal.ONE
         )
 
-        coEvery { remoteRepository.getCurrentMarketPrice() } returns LayerResult.failure(Exception())
+        coEvery { remoteRepository.getCurrentMarketPrice() } returns LayerResult.failure(FailureType.Unknown)
 
         coEvery { localRepository.getCurrentMarketPrice() } returns LayerResult.success(expected)
 
@@ -72,7 +73,7 @@ class BlockchainRepositoryImplTest {
             value = BigDecimal.ONE
         )
 
-        coEvery { remoteRepository.getCurrentMarketPrice() } returns LayerResult.failure(Exception())
+        coEvery { remoteRepository.getCurrentMarketPrice() } returns LayerResult.failure(FailureType.Unknown)
 
         coEvery { localRepository.getCurrentMarketPrice() } returns LayerResult.success(expected)
 
@@ -132,7 +133,7 @@ class BlockchainRepositoryImplTest {
 
         val expected = listOf(blockchainZero, blockchainOne, blockchainTen)
 
-        coEvery { remoteRepository.getAllMarketPrices() } returns LayerResult.failure(Exception())
+        coEvery { remoteRepository.getAllMarketPrices() } returns LayerResult.failure(FailureType.Unknown)
 
         coEvery { localRepository.getAllMarketPrices() } returns LayerResult.success(expected)
 
