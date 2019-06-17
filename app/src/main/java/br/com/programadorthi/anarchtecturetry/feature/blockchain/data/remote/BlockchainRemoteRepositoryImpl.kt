@@ -3,6 +3,7 @@ package br.com.programadorthi.anarchtecturetry.feature.blockchain.data.remote
 import br.com.programadorthi.anarchtecturetry.feature.blockchain.domain.Blockchain
 import br.com.programadorthi.base.remote.BaseRemoteMapper
 import br.com.programadorthi.base.remote.RemoteExecutor
+import br.com.programadorthi.base.shared.LayerResult
 
 class BlockchainRemoteRepositoryImpl(
     private val blockchainCurrentValueMapper: BaseRemoteMapper<BlockchainCurrentValueRaw, Blockchain>,
@@ -11,13 +12,13 @@ class BlockchainRemoteRepositoryImpl(
     private val remoteExecutor: RemoteExecutor
 ) : BlockchainRemoteRepository {
 
-    override suspend fun getCurrentMarketPrice(): Blockchain {
+    override suspend fun getCurrentMarketPrice(): LayerResult<Blockchain> {
         return remoteExecutor.checkConnectionMapperAndThenReturn(blockchainCurrentValueMapper) {
             blockchainService.getCurrentMarketPrice()
         }
     }
 
-    override suspend fun getAllMarketPrices(): List<Blockchain> {
+    override suspend fun getAllMarketPrices(): LayerResult<List<Blockchain>> {
         return remoteExecutor.checkConnectionMapperAndThenReturn(blockchainMapper) {
             blockchainService.getMarketPrices()
         }

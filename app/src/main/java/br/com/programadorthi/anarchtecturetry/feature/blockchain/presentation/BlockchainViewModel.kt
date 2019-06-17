@@ -7,6 +7,7 @@ import br.com.programadorthi.anarchtecturetry.feature.blockchain.domain.Blockcha
 import br.com.programadorthi.anarchtecturetry.feature.blockchain.domain.BlockchainInteractor
 import br.com.programadorthi.base.formatter.TextFormatter
 import br.com.programadorthi.base.presentation.ViewState
+import br.com.programadorthi.base.shared.LayerResult
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
@@ -47,13 +48,11 @@ class BlockchainViewModel(
         mutableCurrentMarketPrice.value = ViewState.Loading()
 
         executionScope.launch {
-            val state: ViewState<BlockchainViewData> = try {
-                val currentPrice = blockchainInteractor.getCurrentMarketPrice()
-                val viewData = mapToBlockchainViewData(currentPrice)
-                ViewState.Complete(viewData)
-            } catch (ex: Throwable) {
-                ViewState.Error(ex)
-            }
+            val state: ViewState<BlockchainViewData> =
+                when (val result = blockchainInteractor.getCurrentMarketPrice()) {
+                    is LayerResult.Success -> ViewState.Complete(mapToBlockchainViewData(result.data))
+                    is LayerResult.Failure -> ViewState.Error(result.exception)
+                }
             mutableCurrentMarketPrice.postValue(state)
         }
     }
@@ -62,13 +61,11 @@ class BlockchainViewModel(
         mutableMarketPrices.value = ViewState.Loading()
 
         executionScope.launch {
-            val state: ViewState<List<BlockchainViewData>> = try {
-                val prices = blockchainInteractor.getAllMarketPrices()
-                val mappedPrices = prices.map(::mapToBlockchainViewData)
-                ViewState.Complete(mappedPrices)
-            } catch (ex: Throwable) {
-                ViewState.Error(ex)
-            }
+            val state: ViewState<List<BlockchainViewData>> =
+                when (val result = blockchainInteractor.getAllMarketPrices()) {
+                    is LayerResult.Success -> ViewState.Complete(result.data.map(::mapToBlockchainViewData))
+                    is LayerResult.Failure -> ViewState.Error(result.exception)
+                }
             mutableMarketPrices.postValue(state)
         }
     }

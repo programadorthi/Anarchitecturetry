@@ -4,7 +4,7 @@ import android.content.Context
 import br.com.programadorthi.anarchtecturetry.firebase.CrashlyticsConsumer
 import br.com.programadorthi.base.adapter.BigDecimalJsonAdapter
 import br.com.programadorthi.base.exception.CrashConsumer
-import br.com.programadorthi.base.formatter.DateFormatter
+import br.com.programadorthi.base.formatter.DateTimeFormatter
 import br.com.programadorthi.base.formatter.MoneyFormatter
 import br.com.programadorthi.base.formatter.TextFormatter
 import br.com.programadorthi.base.remote.NetworkHandler
@@ -43,7 +43,7 @@ object ApplicationModule {
     @Provides
     @Named(DATE_FORMATTER)
     @JvmStatic
-    fun provideDateFormatter(): TextFormatter<Date> = DateFormatter()
+    fun provideDateTimeFormatter(): TextFormatter<Date> = DateTimeFormatter()
 
     @Provides
     @Named(MONEY_FORMATTER)

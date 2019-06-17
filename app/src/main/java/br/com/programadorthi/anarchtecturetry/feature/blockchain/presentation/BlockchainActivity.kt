@@ -75,7 +75,7 @@ class BlockchainActivity : AppCompatActivity() {
             is ViewState.Complete -> {
                 state.result.apply {
                     currentMarketPriceValue.text = value
-                    currentMarketPriceDate.text = date
+                    currentMarketPriceDate.text = getString(R.string.market_price_today, date)
                 }
             }
             is ViewState.Error -> checkCurrentMarketError(state.error)

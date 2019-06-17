@@ -8,10 +8,10 @@ import br.com.programadorthi.anarchtecturetry.feature.blockchain.presentation.Bl
 import br.com.programadorthi.anarchtecturetry.feature.blockchain.presentation.BlockchainViewModel
 import br.com.programadorthi.base.formatter.TextFormatter
 import br.com.programadorthi.base.presentation.ViewState
+import br.com.programadorthi.base.shared.LayerResult
 import io.mockk.*
-import io.reactivex.Completable
-import io.reactivex.Flowable
-import io.reactivex.schedulers.Schedulers
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -29,22 +29,20 @@ class BlockchainViewModelTest {
 
     private val moneyFormatter = mockk<TextFormatter<BigDecimal>>()
 
-    private val scheduler = Schedulers.trampoline()
-
     private val currentMarketPriceLoadingClass = ViewState.Loading<BlockchainViewData>().javaClass.kotlin
     private val allMarketPricesLoadingClass = ViewState.Loading<List<BlockchainViewData>>().javaClass.kotlin
 
-    private val viewModel = BlockchainViewModel(blockchainInteractor, dateFormatter, moneyFormatter, scheduler)
+    private val coroutineScope = CoroutineScope(Dispatchers.Default)
+
+    private val viewModel = BlockchainViewModel(blockchainInteractor, dateFormatter, moneyFormatter, coroutineScope)
 
     @Before
     fun setUp() {
         every { dateFormatter.format(any(), any()) } returns ""
         every { moneyFormatter.format(any(), any()) } returns ""
 
-        every { blockchainInteractor.getCurrentMarketPrice() } returns Flowable.just(Blockchain.EMPTY)
-        every { blockchainInteractor.getAllMarketPrices() } returns Flowable.just(emptyList())
-        every { blockchainInteractor.fetchCurrentMarketPrice() } returns Completable.complete()
-        every { blockchainInteractor.fetchAllMarketPrices() } returns Completable.complete()
+        coEvery { blockchainInteractor.getCurrentMarketPrice() } returns LayerResult.success(Blockchain.EMPTY)
+        coEvery { blockchainInteractor.getAllMarketPrices() } returns LayerResult.success(emptyList())
     }
 
     @Test
@@ -106,7 +104,7 @@ class BlockchainViewModelTest {
         every { dateFormatter.format(any(), any()) } returns expected.date
         every { moneyFormatter.format(any(), any()) } returns expected.value
 
-        every { blockchainInteractor.getAllMarketPrices() } returns Flowable.just(listOf(Blockchain.EMPTY))
+        coEvery { blockchainInteractor.getAllMarketPrices() } returns LayerResult.success(listOf(Blockchain.EMPTY))
 
         viewModel.initialize()
 
@@ -129,8 +127,8 @@ class BlockchainViewModelTest {
 
         val expected = IllegalStateException("this is an exception")
 
-        every { blockchainInteractor.getCurrentMarketPrice() } returns Flowable.error(expected)
-        every { blockchainInteractor.getAllMarketPrices() } returns Flowable.error(expected)
+        coEvery { blockchainInteractor.getCurrentMarketPrice() } returns LayerResult.failure(expected)
+        coEvery { blockchainInteractor.getAllMarketPrices() } returns LayerResult.failure(expected)
 
         viewModel.initialize()
 
@@ -153,13 +151,13 @@ class BlockchainViewModelTest {
 
         val expected = IllegalStateException("this is an exception")
 
-        every { blockchainInteractor.fetchCurrentMarketPrice() } returns Completable.error(expected)
-        every { blockchainInteractor.fetchAllMarketPrices() } returns Completable.error(expected)
+        coEvery { blockchainInteractor.getCurrentMarketPrice() } returns LayerResult.failure(expected)
+        coEvery { blockchainInteractor.getAllMarketPrices() } returns LayerResult.failure(expected)
 
         viewModel.initialize()
 
-        verify(exactly = 3) { observerCurrentMarketPrice.onChanged(any()) }
-        verify(exactly = 3) { observerAllMarketPrices.onChanged(any()) }
+        verify(exactly = 2) { observerCurrentMarketPrice.onChanged(any()) }
+        verify(exactly = 2) { observerAllMarketPrices.onChanged(any()) }
 
         verify(exactly = 1) { observerCurrentMarketPrice.onChanged(ViewState.Error(expected)) }
         verify(exactly = 1) { observerAllMarketPrices.onChanged(ViewState.Error(expected)) }
@@ -175,13 +173,10 @@ class BlockchainViewModelTest {
         val observerCurrentMarketPrice = mockCurrentMarketPriceObserver()
         val observerAllMarketPrices = mockAllMarketPricesObserver()
 
-        every { blockchainInteractor.fetchCurrentMarketPrice() } returns Completable.complete()
-        every { blockchainInteractor.fetchAllMarketPrices() } returns Completable.complete()
-
         viewModel.refresh()
 
-        verify(atMost = 1) { observerCurrentMarketPrice.onChanged(any()) }
-        verify(atMost = 1) { observerAllMarketPrices.onChanged(any()) }
+        verify(atMost = 2) { observerCurrentMarketPrice.onChanged(any()) }
+        verify(atMost = 2) { observerAllMarketPrices.onChanged(any()) }
 
         verify(exactly = 1) { observerCurrentMarketPrice.onChanged(ofType(currentMarketPriceLoadingClass)) }
         verify(exactly = 1) { observerAllMarketPrices.onChanged(ofType(allMarketPricesLoadingClass)) }
@@ -196,8 +191,8 @@ class BlockchainViewModelTest {
 
         val expected = IllegalStateException("this is an exception")
 
-        every { blockchainInteractor.fetchCurrentMarketPrice() } returns Completable.error(expected)
-        every { blockchainInteractor.fetchAllMarketPrices() } returns Completable.error(expected)
+        coEvery { blockchainInteractor.getCurrentMarketPrice() } returns LayerResult.failure(expected)
+        coEvery { blockchainInteractor.getAllMarketPrices() } returns LayerResult.failure(expected)
 
         viewModel.refresh()
 

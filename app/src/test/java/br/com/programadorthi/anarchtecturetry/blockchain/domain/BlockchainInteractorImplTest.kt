@@ -4,12 +4,14 @@ import br.com.programadorthi.anarchtecturetry.feature.blockchain.domain.Blockcha
 import br.com.programadorthi.anarchtecturetry.feature.blockchain.domain.BlockchainInteractor
 import br.com.programadorthi.anarchtecturetry.feature.blockchain.domain.BlockchainInteractorImpl
 import br.com.programadorthi.anarchtecturetry.feature.blockchain.domain.BlockchainRepository
-import io.mockk.every
+import br.com.programadorthi.base.shared.LayerResult
+import io.mockk.coEvery
 import io.mockk.mockk
-import io.reactivex.Flowable
-import io.reactivex.subjects.PublishSubject
+import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Test
+import java.math.BigDecimal
+import java.util.*
 
 class BlockchainInteractorImplTest {
 
@@ -24,65 +26,52 @@ class BlockchainInteractorImplTest {
 
     @Test
     fun `should get a empty blockchain when get current market price`() {
-        every { blockchainRepository.getCurrentMarketPrice() } returns Flowable.just(Blockchain.EMPTY)
+        coEvery { blockchainRepository.getCurrentMarketPrice() } returns LayerResult.success(Blockchain.EMPTY)
 
-        val testObserver = blockchainInteractor.getCurrentMarketPrice().test()
-
-        testObserver.awaitTerminalEvent()
-
-        testObserver
-            .assertNoErrors()
-            .assertValueCount(1)
-            .assertValue(Blockchain.EMPTY)
+        runBlocking {
+            val result = blockchainInteractor.getCurrentMarketPrice()
+            assert(result is LayerResult.Success && result.data == Blockchain.EMPTY)
+        }
     }
 
     @Test
     fun `should get a empty blockchain list when there is no blockchain history`() {
-        every { blockchainRepository.getAllMarketPrices() } returns Flowable.just(listOf(Blockchain.EMPTY))
+        coEvery { blockchainRepository.getAllMarketPrices() } returns LayerResult.success(emptyList())
 
-        val testObserver = blockchainInteractor.getAllMarketPrices().test()
-
-        testObserver.awaitTerminalEvent()
-
-        testObserver
-            .assertNoErrors()
-            .assertValueCount(1)
-            .assertValue { it.isNotEmpty() }
+        runBlocking {
+            val result = blockchainInteractor.getAllMarketPrices()
+            assert(result is LayerResult.Success && result.data.isEmpty())
+        }
     }
 
     @Test
-    fun `should complete when fetch current market price`() {
-        val subject = PublishSubject.create<Blockchain>()
+    fun `should get a blockchain when get current market price`() {
+        val expected = Blockchain(
+            date = Date(),
+            value = BigDecimal.ONE
+        )
 
-        every { blockchainRepository.fetchCurrentMarketPrice() } answers { subject.ignoreElements() }
+        coEvery { blockchainRepository.getCurrentMarketPrice() } returns LayerResult.success(expected)
 
-        val testObserver = blockchainInteractor.fetchCurrentMarketPrice().test()
-
-        subject.onComplete()
-
-        testObserver.awaitTerminalEvent()
-
-        testObserver
-            .assertNoErrors()
-            .assertComplete()
-            .assertOf { subject.hasComplete() }
+        runBlocking {
+            val result = blockchainInteractor.getCurrentMarketPrice()
+            assert(result is LayerResult.Success && result.data == expected)
+        }
     }
 
     @Test
-    fun `should complete when fetch all market prices`() {
-        val subject = PublishSubject.create<Blockchain>()
+    fun `should get a blockchain list when there is no blockchain history`() {
+        val expected = Blockchain(
+            date = Date(),
+            value = BigDecimal.ONE
+        )
 
-        every { blockchainRepository.fetchAllMarketPrices() } answers { subject.ignoreElements() }
+        coEvery { blockchainRepository.getAllMarketPrices() } returns LayerResult.success(listOf(expected))
 
-        val testObserver = blockchainInteractor.fetchAllMarketPrices().test()
-
-        subject.onComplete()
-
-        testObserver.awaitTerminalEvent()
-
-        testObserver
-            .assertNoErrors()
-            .assertComplete()
-            .assertOf { subject.hasComplete() }
+        runBlocking {
+            val result = blockchainInteractor.getAllMarketPrices()
+            assert(result is LayerResult.Success && result.data.isNotEmpty() && result.data[0] == expected)
+        }
     }
+
 }

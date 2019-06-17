@@ -5,7 +5,7 @@ package br.com.programadorthi.base.presentation
  */
 sealed class ViewState<T> {
     /**
-     * The complete state with a result
+     * The complete state with a data
      */
     data class Complete<T>(val result: T) : ViewState<T>()
 

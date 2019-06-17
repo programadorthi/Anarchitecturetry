@@ -2,6 +2,7 @@ package br.com.programadorthi.base.remote
 
 import br.com.programadorthi.base.exception.BaseException
 import br.com.programadorthi.base.exception.CrashConsumer
+import br.com.programadorthi.base.shared.LayerResult
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 
@@ -11,46 +12,42 @@ class RemoteExecutorImpl(
     private val dispatcher: CoroutineDispatcher
 ) : RemoteExecutor {
 
-    override suspend fun checkConnectionAndThenDone(action: suspend () -> Unit) {
-        validateInternetConnection()
-
+    override suspend fun checkConnectionAndThenDone(action: suspend () -> Unit): LayerResult<Boolean> =
         withContext(dispatcher) {
-            try {
+            return@withContext try {
+                validateInternetConnection()
                 action()
-            } catch (ex: Throwable) {
+                LayerResult.success(true)
+            } catch (ex: Exception) {
                 crashConsumer.report(ex)
-                throw ex
+                LayerResult.failure<Boolean>(ex)
             }
         }
-    }
 
-    override suspend fun <T> checkConnectionAndThenReturn(action: suspend () -> T): T {
-        validateInternetConnection()
-
-        return withContext(dispatcher) {
-            try {
-                action()
-            } catch (ex: Throwable) {
+    override suspend fun <T> checkConnectionAndThenReturn(action: suspend () -> T): LayerResult<T> =
+        withContext(dispatcher) {
+            return@withContext try {
+                validateInternetConnection()
+                val result = action()
+                LayerResult.success(result)
+            } catch (ex: Exception) {
                 crashConsumer.report(ex)
-                throw ex
+                LayerResult.failure<T>(ex)
             }
         }
-    }
 
     override suspend fun <T, R> checkConnectionMapperAndThenReturn(
         mapper: BaseRemoteMapper<T, R>,
         action: suspend () -> T
-    ): R {
-        validateInternetConnection()
-
-        return withContext(dispatcher) {
-            try {
-                val response = action()
-                mapper.apply(response)
-            } catch (ex: Throwable) {
-                crashConsumer.report(ex)
-                throw ex
-            }
+    ): LayerResult<R> = withContext(dispatcher) {
+        return@withContext try {
+            validateInternetConnection()
+            val response = action()
+            val mapped = mapper.apply(response)
+            LayerResult.success(mapped)
+        } catch (ex: Exception) {
+            crashConsumer.report(ex)
+            LayerResult.failure<R>(ex)
         }
     }
 
