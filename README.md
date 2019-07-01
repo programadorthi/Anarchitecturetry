@@ -4,6 +4,8 @@ This project is a compilation of some best practices that I have found during my
 The behavior is to consume a public blockchain API and show the current value and a historical prices. 
 The result is cached in the SQLite to be used when there is no internet connection.
 
+[The project presentation](https://docs.google.com/presentation/d/1_Hc7TCL_04joiN7NWEqpxtd5qCQVgPFU3WIPwVsWoao/edit#slide=id.p)
+
 # Project structure
 Explore the project branches and modules to see how it works. The project architecture is MVVM only.
 
