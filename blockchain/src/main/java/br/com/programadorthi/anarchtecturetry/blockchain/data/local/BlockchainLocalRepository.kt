@@ -1,16 +1,16 @@
 package br.com.programadorthi.anarchtecturetry.blockchain.data.local
 
 import br.com.programadorthi.anarchtecturetry.blockchain.domain.Blockchain
-import io.reactivex.Flowable
+import br.com.programadorthi.base.shared.LayerResult
 
 interface BlockchainLocalRepository {
 
-    fun getCurrentMarketPrice(): Flowable<Blockchain>
+    suspend fun getCurrentMarketPrice(): LayerResult<Blockchain>
 
-    fun getAllMarketPrices(): Flowable<List<Blockchain>>
+    suspend fun getAllMarketPrices(): LayerResult<List<Blockchain>>
 
-    fun insertCurrentValueInTransaction(blockchain: Blockchain)
+    suspend fun insertCurrentValueInTransaction(blockchain: Blockchain): LayerResult<Boolean>
 
-    fun updateMarketPricesInTransaction(prices: List<Blockchain>)
+    suspend fun updateMarketPricesInTransaction(prices: List<Blockchain>): LayerResult<Boolean>
 
 }

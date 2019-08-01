@@ -1,13 +1,13 @@
 package br.com.programadorthi.anarchtecturetry.crashlytics
 
 import br.com.programadorthi.base.exception.BaseException
-import io.reactivex.functions.Consumer
+import br.com.programadorthi.base.exception.CrashConsumer
 
 /**
  * Consumer implementation used to catch errors in the RxJava flow
  */
-class CrashlyticsConsumer : Consumer<Throwable> {
-    override fun accept(throwable: Throwable?) {
+class CrashlyticsConsumer : CrashConsumer {
+    override fun report(throwable: Throwable) {
         if (BaseException.isAnExceptionToReport(throwable)) {
             // Here we send the Throwable to the Crashlytics
         }

@@ -6,36 +6,31 @@ import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import br.com.programadorthi.anarchtecturetry.blockchain.R
-import br.com.programadorthi.anarchtecturetry.blockchain.di.blockchainModule
+import br.com.programadorthi.anarchtecturetry.blockchain.di.BlockchainComponent
+import br.com.programadorthi.anarchtecturetry.blockchain.di.BlockchainInjector
 import br.com.programadorthi.anarchtecturetry.blockchain.presentation.adapter.BlockchainAdapter
-import br.com.programadorthi.base.exception.BaseException
+import br.com.programadorthi.anarchtecturetry.utils.getOrCreateViewModel
 import br.com.programadorthi.base.extension.setVisible
 import br.com.programadorthi.base.presentation.ViewState
+import br.com.programadorthi.base.shared.FailureType
 import kotlinx.android.synthetic.main.activity_blockchain.*
-import org.koin.androidx.viewmodel.ext.android.viewModel
-import org.koin.core.context.loadKoinModules
-import org.koin.core.context.unloadKoinModules
-import br.com.programadorthi.anarchtecturetry.R as MainR
+import br.com.programadorthi.anarchtecturetry.R as appResources
 
 class BlockchainActivity : AppCompatActivity() {
 
-    private val blockchainViewModel: BlockchainViewModel by viewModel()
-
     private val blockchainAdapter = BlockchainAdapter()
 
+    private lateinit var blockchainViewModel: BlockchainViewModel
+
     override fun onCreate(savedInstanceState: Bundle?) {
+        val component = BlockchainInjector.inject(this)
+
         super.onCreate(savedInstanceState)
-        loadKoinModules(blockchainModule)
 
         setContentView(R.layout.activity_blockchain)
 
         initRecyclerView()
-        initViewModel()
-    }
-
-    override fun onDestroy() {
-        unloadKoinModules(blockchainModule)
-        super.onDestroy()
+        initViewModel(component)
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -56,7 +51,9 @@ class BlockchainActivity : AppCompatActivity() {
         marketPricesRecyclerView.adapter = blockchainAdapter
     }
 
-    private fun initViewModel() {
+    private fun initViewModel(component: BlockchainComponent) {
+        blockchainViewModel = getOrCreateViewModel { component.blockchainViewModel() }
+
         blockchainViewModel.currentMarketPrice.observe(this, Observer { state ->
             updateCurrentMarketPrice(state)
         })
@@ -73,10 +70,10 @@ class BlockchainActivity : AppCompatActivity() {
             is ViewState.Complete -> {
                 state.result.apply {
                     currentMarketPriceValue.text = value
-                    currentMarketPriceDate.text = date
+                    currentMarketPriceDate.text = getString(R.string.market_price_today, date)
                 }
             }
-            is ViewState.Error -> checkCurrentMarketError(state.error)
+            is ViewState.Failure -> checkCurrentMarketError(state.type)
         }
         updateCurrentMarketPriceFields(state)
     }
@@ -86,7 +83,7 @@ class BlockchainActivity : AppCompatActivity() {
             is ViewState.Complete -> {
                 blockchainAdapter.changeDataSet(state.result)
             }
-            is ViewState.Error -> checkMarketPricesError(state.error)
+            is ViewState.Failure -> checkMarketPricesError(state.type)
         }
         updateMarketPricesFields(state)
     }
@@ -94,28 +91,30 @@ class BlockchainActivity : AppCompatActivity() {
     private fun updateCurrentMarketPriceFields(state: ViewState<BlockchainViewData>?) {
         currentMarketPriceValue.setVisible(state is ViewState.Complete)
         currentMarketPriceDate.setVisible(state is ViewState.Complete)
-        currentMarketPriceErrorText.setVisible(state is ViewState.Error)
+        currentMarketPriceErrorText.setVisible(state is ViewState.Failure)
         currentMarketPricesProgressBar.setVisible(state is ViewState.Loading)
     }
 
     private fun updateMarketPricesFields(state: ViewState<List<BlockchainViewData>>?) {
         marketPricesRecyclerView.setVisible(state is ViewState.Complete)
-        marketPricesErrorText.setVisible(state is ViewState.Error)
+        marketPricesErrorText.setVisible(state is ViewState.Failure)
         marketPricesProgressBar.setVisible(state is ViewState.Loading)
     }
 
-    private fun checkCurrentMarketError(throwable: Throwable) {
-        val text = when (throwable) {
-            is BaseException.NoInternetConnectionException -> getString(MainR.string.shared_text_no_internet_connection)
-            else -> getString(MainR.string.shared_text_unknown_exception)
+    private fun checkCurrentMarketError(failureType: FailureType) {
+        val text = when (failureType) {
+            is FailureType.NoInternetConnection ->
+                getString(appResources.string.shared_text_no_internet_connection)
+            else -> getString(appResources.string.shared_text_unknown_exception)
         }
         currentMarketPriceErrorText.text = text
     }
 
-    private fun checkMarketPricesError(throwable: Throwable) {
-        val text = when (throwable) {
-            is BaseException.NoInternetConnectionException -> getString(MainR.string.shared_text_no_internet_connection)
-            else -> getString(MainR.string.shared_text_unknown_exception)
+    private fun checkMarketPricesError(failureType: FailureType) {
+        val text = when (failureType) {
+            is FailureType.NoInternetConnection ->
+                getString(appResources.string.shared_text_no_internet_connection)
+            else -> getString(appResources.string.shared_text_unknown_exception)
         }
         marketPricesErrorText.text = text
     }

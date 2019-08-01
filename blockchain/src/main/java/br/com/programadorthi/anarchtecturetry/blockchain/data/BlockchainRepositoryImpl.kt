@@ -4,32 +4,39 @@ import br.com.programadorthi.anarchtecturetry.blockchain.data.local.BlockchainLo
 import br.com.programadorthi.anarchtecturetry.blockchain.data.remote.BlockchainRemoteRepository
 import br.com.programadorthi.anarchtecturetry.blockchain.domain.Blockchain
 import br.com.programadorthi.anarchtecturetry.blockchain.domain.BlockchainRepository
-import io.reactivex.Completable
-import io.reactivex.Flowable
+import br.com.programadorthi.base.shared.LayerResult
 
 class BlockchainRepositoryImpl(
     private val localRepository: BlockchainLocalRepository,
     private val remoteRepository: BlockchainRemoteRepository
 ) : BlockchainRepository {
 
-    override fun getCurrentMarketPrice(): Flowable<Blockchain> =
-        localRepository.getCurrentMarketPrice()
+    override suspend fun getCurrentMarketPrice(): LayerResult<Blockchain> {
+        val remoteResult = remoteRepository.getCurrentMarketPrice()
+        if (remoteResult is LayerResult.Success) {
+            localRepository.insertCurrentValueInTransaction(remoteResult.data)
+            return remoteResult
+        }
 
-    override fun getAllMarketPrices(): Flowable<List<Blockchain>> =
-        localRepository.getAllMarketPrices()
-
-    override fun fetchCurrentMarketPrice(): Completable {
-        return remoteRepository
-            .getCurrentMarketPrice()
-            .doOnSuccess(localRepository::insertCurrentValueInTransaction)
-            .ignoreElement()
+        val localResult = localRepository.getCurrentMarketPrice()
+        if (localResult is LayerResult.Success && localResult.data != Blockchain.EMPTY) {
+            return localResult
+        }
+        return remoteResult
     }
 
-    override fun fetchAllMarketPrices(): Completable {
-        return remoteRepository
-            .getAllMarketPrices()
-            .doOnSuccess(localRepository::updateMarketPricesInTransaction)
-            .ignoreElement()
+    override suspend fun getAllMarketPrices(): LayerResult<List<Blockchain>> {
+        val remoteResult = remoteRepository.getAllMarketPrices()
+        if (remoteResult is LayerResult.Success) {
+            localRepository.updateMarketPricesInTransaction(remoteResult.data)
+            return remoteResult
+        }
+
+        val localResult = localRepository.getAllMarketPrices()
+        if (localResult is LayerResult.Success && localResult.data.isNotEmpty()) {
+            return localResult
+        }
+        return remoteResult
     }
 
 }

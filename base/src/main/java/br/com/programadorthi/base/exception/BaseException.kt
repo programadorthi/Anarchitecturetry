@@ -5,11 +5,6 @@ package br.com.programadorthi.base.exception
  */
 sealed class BaseException(message: String = "") : RuntimeException(message) {
     /**
-     * Base class used for specific feature failures
-     */
-    abstract class BusinessException : BaseException()
-
-    /**
      * Exception thrown when an essential parameter is missing in the backend/network response
      */
     class EssentialParamMissingException(
@@ -22,16 +17,6 @@ sealed class BaseException(message: String = "") : RuntimeException(message) {
      */
     data class HttpCallException(val code: Int) :
         BaseException("Server HTTP response code was $code")
-
-    /**
-     * Object used to identify a network without internet connection
-     */
-    object NoInternetConnectionException : BaseException()
-
-    /**
-     * Object used to identify an authorized user. E.g: HTTP 401
-     */
-    object UnauthorizedException : BaseException()
 
     /**
      * Exception to identify an invalid endpoint

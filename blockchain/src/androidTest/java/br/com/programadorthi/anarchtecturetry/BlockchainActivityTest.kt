@@ -70,7 +70,7 @@ class BlockchainActivityTest : BaseEspressoTest() {
     @Test
     fun whenStartActivity_shouldShowCurrentMarketPriceLoadingState() {
         activityTestRule.activity.runOnUiThread {
-            currentMarketPrice.value = ViewState.Loading()
+            currentMarketPrice.value = ViewState.Loading
         }
 
         onViewWithId(resId = R.id.currentMarketPricesProgressBar)
@@ -89,7 +89,7 @@ class BlockchainActivityTest : BaseEspressoTest() {
     @Test
     fun whenStartActivity_shouldShowMarketPricesLoadingState() {
         activityTestRule.activity.runOnUiThread {
-            marketPrices.value = ViewState.Loading()
+            marketPrices.value = ViewState.Loading
         }
 
         onViewWithId(resId = R.id.marketPricesProgressBar)
@@ -141,7 +141,7 @@ class BlockchainActivityTest : BaseEspressoTest() {
     @Test
     fun whenStartActivityAndCurrentMarketPriceHasError_shouldShowCurrentMarketErrorText() {
         activityTestRule.activity.runOnUiThread {
-            currentMarketPrice.value = ViewState.Error(Exception())
+            currentMarketPrice.value = ViewState.Failure(Exception())
         }
 
         onViewWithId(resId = R.id.currentMarketPricesProgressBar)
@@ -160,7 +160,7 @@ class BlockchainActivityTest : BaseEspressoTest() {
     @Test
     fun whenStartActivityAndHistoricalMarketPricesHasError_shouldShowMarketPricesErrorText() {
         activityTestRule.activity.runOnUiThread {
-            marketPrices.value = ViewState.Error(Exception())
+            marketPrices.value = ViewState.Failure(Exception())
         }
 
         onViewWithId(resId = R.id.marketPricesProgressBar)

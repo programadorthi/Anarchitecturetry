@@ -35,7 +35,7 @@ class BaseRemoteMapperTest {
     }
 
     private class FakeMapper : BaseRemoteMapper<FakeResponseRaw, FakeModel>() {
-        override fun checkRequiredParamsBeforeCopyValues(raw: FakeResponseRaw): List<String> {
+        override fun checkParams(raw: FakeResponseRaw): List<String> {
             val missingFields = mutableListOf<String>()
             if (raw.rawValue == null) {
                 missingFields.add("rawValue")
@@ -43,8 +43,8 @@ class BaseRemoteMapperTest {
             return missingFields
         }
 
-        override fun copyValuesAfterCheckRequiredParams(raw: FakeResponseRaw): FakeModel {
-            // sample value was checked in the checkRequiredParamsBeforeCopyValues method
+        override fun copyValues(raw: FakeResponseRaw): FakeModel {
+            // sample value was checked in the checkParams method
             return FakeModel(value = raw.rawValue!!)
         }
     }

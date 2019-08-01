@@ -1,30 +1,30 @@
 package br.com.programadorthi.base.remote
 
 import br.com.programadorthi.base.exception.BaseException
-import io.reactivex.functions.Function
 
 /**
  * Base mapper used for inheritance to map network response in feature model
  *
- * @param Raw The result from server
+ * @param Raw The data from server
  * @param Model The feature model to create from Raw
  */
-abstract class BaseRemoteMapper<Raw, Model> : Function<Raw, Model> {
+abstract class BaseRemoteMapper<Raw, Model> {
 
     @Throws(BaseException.EssentialParamMissingException::class)
-    override fun apply(raw: Raw): Model {
+    fun apply(raw: Raw): Model {
         assertEssentialParams(raw)
-        return copyValuesAfterCheckRequiredParams(raw)
+        return copyValues(raw)
     }
 
     /**
      * Check if the required parameters were returned from server
      *
-     * @param raw The result from server
+     * @param raw The data from server
      * @throws BaseException.EssentialParamMissingException When a required parameter is missing
      */
+    @Throws(BaseException.EssentialParamMissingException::class)
     private fun assertEssentialParams(raw: Raw) {
-        val fields = checkRequiredParamsBeforeCopyValues(raw)
+        val fields = checkParams(raw)
         if (fields.isNotEmpty()) {
             val params = fields.joinToString(prefix = "[", postfix = "]")
             throw BaseException.EssentialParamMissingException(
@@ -37,16 +37,16 @@ abstract class BaseRemoteMapper<Raw, Model> : Function<Raw, Model> {
     /**
      * Check if the specific implementation parameters were return from server
      *
-     * @param raw The result from server
-     * @return The missing parameters list
+     * @param raw The data from server
+     * @return A missing parameters list or empty when is all ok
      */
-    protected abstract fun checkRequiredParamsBeforeCopyValues(raw: Raw): List<String>
+    protected abstract fun checkParams(raw: Raw): List<String>
 
     /**
      * Create a [Model] using the values in [Raw]
      *
-     * @param raw The result from server
+     * @param raw The data from server
      * @return A model with the raw's values
      */
-    protected abstract fun copyValuesAfterCheckRequiredParams(raw: Raw): Model
+    protected abstract fun copyValues(raw: Raw): Model
 }

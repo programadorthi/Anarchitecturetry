@@ -14,10 +14,7 @@ android {
     defaultConfig {
         minSdkVersion rootProject.ext.android.minSdkVersion
 
-        resConfigs rootProject.ext.android.resConfigs
-
         targetSdkVersion rootProject.ext.android.targetSdkVersion
-
     }
 
     buildTypes {
@@ -37,11 +34,16 @@ android {
         dev {
             //applicationIdSuffix ".debug"
             minSdkVersion rootProject.ext.android.minSdkVersionDev
+            resConfigs rootProject.ext.android.resConfigs
             versionNameSuffix "-dev"
         }
         prod {
         }
     }
+}
+
+kapt {
+    useBuildCache = true
 }
 
 dependencies {
@@ -61,12 +63,13 @@ dependencies {
     // Architecture components
     implementation rootProject.ext.commonDependencies.lifecycleExtensions
 
-    // Koin
-    implementation rootProject.ext.commonDependencies.koinAndroid
-    implementation rootProject.ext.commonDependencies.koinViewModel
+    // Dagger 2
+    implementation rootProject.ext.commonDependencies.dagger2
+    kapt rootProject.ext.commonDependencies.dagger2Compiler
 
     // Kotlin
     implementation rootProject.ext.commonDependencies.kotlinJdk
+    implementation rootProject.ext.commonDependencies.kotlinCoroutines
 
     // Moshi
     implementation rootProject.ext.commonDependencies.moshi
@@ -78,16 +81,12 @@ dependencies {
 
     // Retrofit
     implementation rootProject.ext.commonDependencies.retrofit2
-    implementation rootProject.ext.commonDependencies.retrofitRxAdapter
     implementation rootProject.ext.commonDependencies.retrofitConverterMoshi
 
     // Room
     implementation rootProject.ext.commonDependencies.roomRuntime
-    implementation rootProject.ext.commonDependencies.roomRxJava2
+    implementation rootProject.ext.commonDependencies.roomKtx
     kapt rootProject.ext.commonDependencies.roomCompiler
-
-    // RxJava 2
-    implementation rootProject.ext.commonDependencies.rxJava2
 
     // Timber
     implementation rootProject.ext.developmentDependencies.timber
@@ -108,5 +107,4 @@ dependencies {
     androidTestImplementation rootProject.ext.testingDependencies.espressoContrib
     androidTestImplementation rootProject.ext.testingDependencies.espressoIntents
     androidTestImplementation rootProject.ext.testingDependencies.androidTestArchCore
-    androidTestImplementation rootProject.ext.testingDependencies.koinTest
 }

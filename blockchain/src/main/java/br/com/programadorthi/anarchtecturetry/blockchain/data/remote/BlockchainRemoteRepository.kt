@@ -1,12 +1,12 @@
 package br.com.programadorthi.anarchtecturetry.blockchain.data.remote
 
 import br.com.programadorthi.anarchtecturetry.blockchain.domain.Blockchain
-import io.reactivex.Single
+import br.com.programadorthi.base.shared.LayerResult
 
 interface BlockchainRemoteRepository {
 
-    fun getCurrentMarketPrice(): Single<Blockchain>
+    suspend fun getCurrentMarketPrice(): LayerResult<Blockchain>
 
-    fun getAllMarketPrices(): Single<List<Blockchain>>
+    suspend fun getAllMarketPrices(): LayerResult<List<Blockchain>>
 
 }

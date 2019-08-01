@@ -7,7 +7,7 @@ import java.util.*
 
 class DateFormatterTest {
 
-    private val textFormatter = DateFormatter()
+    private val textFormatter = DateTimeFormatter()
 
     @Test
     fun `should get Brazilian dd_MM_yyyy date format`() {

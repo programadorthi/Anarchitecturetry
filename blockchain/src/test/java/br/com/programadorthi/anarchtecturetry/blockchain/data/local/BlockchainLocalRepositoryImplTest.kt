@@ -1,9 +1,15 @@
 package br.com.programadorthi.anarchtecturetry.blockchain.data.local
 
 import br.com.programadorthi.anarchtecturetry.blockchain.domain.Blockchain
-import io.mockk.every
+import br.com.programadorthi.base.exception.CrashConsumer
+import br.com.programadorthi.base.shared.FailureType
+import br.com.programadorthi.base.shared.LayerResult
+import io.mockk.Runs
+import io.mockk.coEvery
+import io.mockk.just
 import io.mockk.mockk
-import io.reactivex.Flowable
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Test
 import java.math.BigDecimal
@@ -13,30 +19,38 @@ class BlockchainLocalRepositoryImplTest {
 
     private val blockchainDao = mockk<BlockchainDao>()
 
-    private val blockchainCurrentValueLocalMapper = BlockchainCurrentValueLocalMapper()
-
-    private val blockchainLocalMapper = BlockchainLocalMapper()
+    private val crashConsumer = mockk<CrashConsumer>()
 
     private lateinit var blockchainLocalRepository: BlockchainLocalRepository
 
     @Before
     fun setUp() {
         blockchainLocalRepository =
-            BlockchainLocalRepositoryImpl(blockchainDao, blockchainCurrentValueLocalMapper, blockchainLocalMapper)
+            BlockchainLocalRepositoryImpl(blockchainDao, crashConsumer, Dispatchers.Default)
+    }
+
+    @Test
+    fun `should get a LayerResult Failure when current blockchain throws an exception in the database`() {
+        val expected = Exception("this is a database exception")
+
+        coEvery { blockchainDao.getCurrentValue() } throws expected
+
+        coEvery { crashConsumer.report(any()) } just Runs
+
+        runBlocking {
+            val result = blockchainLocalRepository.getCurrentMarketPrice()
+            assert(result is LayerResult.Failure && result.type == FailureType.Unknown)
+        }
     }
 
     @Test
     fun `should get a empty blockchain when there is no current blockchain value in the database`() {
-        every { blockchainDao.getCurrentValue() } returns Flowable.just(emptyList())
+        coEvery { blockchainDao.getCurrentValue() } returns emptyList()
 
-        val testObserver = blockchainLocalRepository.getCurrentMarketPrice().test()
-
-        testObserver.awaitTerminalEvent()
-
-        testObserver
-            .assertNoErrors()
-            .assertValueCount(1)
-            .assertValue(Blockchain.EMPTY)
+        runBlocking {
+            val result = blockchainLocalRepository.getCurrentMarketPrice()
+            assert(result is LayerResult.Success && result.data == Blockchain.EMPTY)
+        }
     }
 
     @Test
@@ -50,29 +64,36 @@ class BlockchainLocalRepositoryImplTest {
             value = entity.value
         )
 
-        every { blockchainDao.getCurrentValue() } returns Flowable.just(listOf(entity))
+        coEvery { blockchainDao.getCurrentValue() } returns listOf(entity)
 
-        val testObserver = blockchainLocalRepository.getCurrentMarketPrice().test()
+        runBlocking {
+            val result = blockchainLocalRepository.getCurrentMarketPrice()
+            assert(result is LayerResult.Success && result.data == expected)
+        }
+    }
 
-        testObserver.awaitTerminalEvent()
+    @Test
+    fun `should get a LayerResult Failure when blockchain history throw an exception in the database`() {
+        val expected = Exception("this is a database exception")
 
-        testObserver
-            .assertNoErrors()
-            .assertValueCount(1)
-            .assertValue(expected)
+        coEvery { blockchainDao.getHistoricalMarketPrices() } throws expected
+
+        coEvery { crashConsumer.report(any()) } just Runs
+
+        runBlocking {
+            val result = blockchainLocalRepository.getAllMarketPrices()
+            assert(result is LayerResult.Failure && result.type == FailureType.Unknown)
+        }
     }
 
     @Test
     fun `should get a empty blockchain list when there is no blockchain history in the database`() {
-        every { blockchainDao.getHistoricalMarketPrices() } returns Flowable.just(emptyList())
+        coEvery { blockchainDao.getHistoricalMarketPrices() } returns emptyList()
 
-        val testObserver = blockchainLocalRepository.getAllMarketPrices().test()
-
-        testObserver.awaitTerminalEvent()
-
-        testObserver
-            .assertNoErrors()
-            .assertValue { it.isEmpty() }
+        runBlocking {
+            val result = blockchainLocalRepository.getAllMarketPrices()
+            assert(result is LayerResult.Success && result.data.isEmpty())
+        }
     }
 
     @Test
@@ -86,15 +107,11 @@ class BlockchainLocalRepositoryImplTest {
             value = entity.value
         )
 
-        every { blockchainDao.getHistoricalMarketPrices() } returns Flowable.just(listOf(entity))
+        coEvery { blockchainDao.getHistoricalMarketPrices() } returns listOf(entity)
 
-        val testObserver = blockchainLocalRepository.getAllMarketPrices().test()
-
-        testObserver.awaitTerminalEvent()
-
-        testObserver
-            .assertNoErrors()
-            .assertValue { it.isNotEmpty() }
-            .assertValue(listOf(expected))
+        runBlocking {
+            val result = blockchainLocalRepository.getAllMarketPrices()
+            assert(result is LayerResult.Success && result.data.isNotEmpty() && result.data[0] == expected)
+        }
     }
 }

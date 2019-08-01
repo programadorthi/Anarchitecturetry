@@ -4,12 +4,12 @@ import br.com.programadorthi.anarchtecturetry.blockchain.data.local.BlockchainLo
 import br.com.programadorthi.anarchtecturetry.blockchain.data.remote.BlockchainRemoteRepository
 import br.com.programadorthi.anarchtecturetry.blockchain.domain.Blockchain
 import br.com.programadorthi.anarchtecturetry.blockchain.domain.BlockchainRepository
-import io.mockk.every
+import br.com.programadorthi.base.shared.FailureType
+import br.com.programadorthi.base.shared.LayerResult
+import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.mockk
-import io.reactivex.Flowable
-import io.reactivex.Single
-import io.reactivex.subjects.BehaviorSubject
-import io.reactivex.subjects.ReplaySubject
+import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Test
 import java.math.BigDecimal
@@ -30,16 +30,19 @@ class BlockchainRepositoryImplTest {
 
     @Test
     fun `should get a empty blockchain when get current market price`() {
-        every { localRepository.getCurrentMarketPrice() } returns Flowable.just(Blockchain.EMPTY)
+        val expected = Blockchain(
+            date = Date(),
+            value = BigDecimal.ONE
+        )
 
-        val testObserver = blockchainRepository.getCurrentMarketPrice().test()
+        coEvery { remoteRepository.getCurrentMarketPrice() } returns LayerResult.failure(FailureType.Unknown)
 
-        testObserver.awaitTerminalEvent()
+        coEvery { localRepository.getCurrentMarketPrice() } returns LayerResult.success(expected)
 
-        testObserver
-            .assertNoErrors()
-            .assertValueCount(1)
-            .assertValue(Blockchain.EMPTY)
+        runBlocking {
+            val result = blockchainRepository.getCurrentMarketPrice()
+            assert(result is LayerResult.Success && result.data == expected)
+        }
     }
 
     @Test
@@ -49,66 +52,96 @@ class BlockchainRepositoryImplTest {
             value = BigDecimal.ONE
         )
 
-        val database = BehaviorSubject.create<Blockchain>()
+        coEvery { remoteRepository.getCurrentMarketPrice() } returns LayerResult.success(expected)
 
-        every { remoteRepository.getCurrentMarketPrice() } returns Single.just(Blockchain.EMPTY)
+        coEvery { localRepository.insertCurrentValueInTransaction(any()) } returns LayerResult.success(true)
 
-        every { localRepository.insertCurrentValueInTransaction(any()) } answers { database.onNext(expected) }
+        runBlocking {
+            val result = blockchainRepository.getCurrentMarketPrice()
 
-        val testObserver = blockchainRepository.fetchCurrentMarketPrice().test()
+            coVerify(exactly = 1) { localRepository.insertCurrentValueInTransaction(any()) }
 
-        testObserver.awaitTerminalEvent()
-
-        testObserver
-            .assertNoErrors()
-            .assertComplete()
-            .assertOf { database.hasValue() }
-            .assertOf { database.value == expected }
+            assert(result is LayerResult.Success && result.data == expected)
+        }
     }
 
     @Test
-    fun `should get a empty blockchain list when there is no blockchain history`() {
-        every { localRepository.getAllMarketPrices() } returns Flowable.just(listOf(Blockchain.EMPTY))
+    fun `should get the blockchain value from local when remote call throw an exception`() {
+        val expected = Blockchain(
+            date = Date(),
+            value = BigDecimal.ONE
+        )
 
-        val testObserver = blockchainRepository.getAllMarketPrices().test()
+        coEvery { remoteRepository.getCurrentMarketPrice() } returns LayerResult.failure(FailureType.Unknown)
 
-        testObserver.awaitTerminalEvent()
+        coEvery { localRepository.getCurrentMarketPrice() } returns LayerResult.success(expected)
 
-        testObserver
-            .assertNoErrors()
-            .assertValueCount(1)
-            .assertValue { it.isNotEmpty() }
+        runBlocking {
+            val result = blockchainRepository.getCurrentMarketPrice()
+
+            coVerify(exactly = 0) { localRepository.insertCurrentValueInTransaction(any()) }
+
+            assert(result is LayerResult.Success && result.data == expected)
+        }
     }
 
     @Test
-    fun `should get a blockchain list when insert or update history`() {
-        val blockchain0 = Blockchain(
+    fun `should get a empty blockchain list from server when there is no blockchain history`() {
+        coEvery { remoteRepository.getAllMarketPrices() } returns LayerResult.success(emptyList())
+
+        coEvery { localRepository.updateMarketPricesInTransaction(any()) } returns LayerResult.success(true)
+
+        runBlocking {
+            val result = blockchainRepository.getAllMarketPrices()
+            assert(result is LayerResult.Success && result.data.isEmpty())
+        }
+    }
+
+    @Test
+    fun `should get a blockchain history list from server only`() {
+        val blockchainZero = Blockchain(
             date = Date(),
             value = BigDecimal.ZERO
         )
-        val blockchain1 = blockchain0.copy(value = BigDecimal.ONE)
-        val blockchain10 = blockchain0.copy(value = BigDecimal.TEN)
+        val blockchainOne = blockchainZero.copy(value = BigDecimal.ONE)
+        val blockchainTen = blockchainZero.copy(value = BigDecimal.TEN)
 
-        val expected = listOf(blockchain0, blockchain1, blockchain10).toTypedArray()
+        val expected = listOf(blockchainZero, blockchainOne, blockchainTen)
 
-        val database = ReplaySubject.create<Blockchain>()
+        coEvery { remoteRepository.getAllMarketPrices() } returns LayerResult.success(expected)
 
-        every { remoteRepository.getAllMarketPrices() } returns Single.just(listOf(Blockchain.EMPTY))
+        coEvery { localRepository.updateMarketPricesInTransaction(any()) } returns LayerResult.success(true)
 
-        every { localRepository.updateMarketPricesInTransaction(any()) } answers {
-            database.onNext(blockchain0)
-            database.onNext(blockchain1)
-            database.onNext(blockchain10)
+        runBlocking {
+            val result = blockchainRepository.getAllMarketPrices()
+
+            coVerify(exactly = 1) { localRepository.updateMarketPricesInTransaction(any()) }
+
+            assert(result is LayerResult.Success && result.data.isNotEmpty() && result.data.containsAll(expected))
         }
+    }
 
-        val testObserver = blockchainRepository.fetchAllMarketPrices().test()
+    @Test
+    fun `should get a blockchain history list from local only`() {
+        val blockchainZero = Blockchain(
+            date = Date(),
+            value = BigDecimal.ZERO
+        )
+        val blockchainOne = blockchainZero.copy(value = BigDecimal.ONE)
+        val blockchainTen = blockchainZero.copy(value = BigDecimal.TEN)
 
-        testObserver.awaitTerminalEvent()
+        val expected = listOf(blockchainZero, blockchainOne, blockchainTen)
 
-        testObserver
-            .assertNoErrors()
-            .assertComplete()
-            .assertOf { database.hasValue() }
-            .assertOf { expected.contentEquals(database.values) }
+        coEvery { remoteRepository.getAllMarketPrices() } returns LayerResult.failure(FailureType.Unknown)
+
+        coEvery { localRepository.getAllMarketPrices() } returns LayerResult.success(expected)
+
+        runBlocking {
+            val result = blockchainRepository.getAllMarketPrices()
+
+            coVerify(exactly = 0) { localRepository.updateMarketPricesInTransaction(any()) }
+
+            assert(result is LayerResult.Success && result.data.isNotEmpty() && result.data.containsAll(expected))
+        }
     }
 }

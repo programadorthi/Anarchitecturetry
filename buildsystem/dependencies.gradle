@@ -5,6 +5,12 @@ allprojects {
         mavenCentral()
         maven { url "https://jitpack.io" }
     }
+    afterEvaluate {
+        extensions.findByName('kapt')?.arguments {
+            arg("dagger.formatGeneratedSource", "disabled")
+            arg("dagger.gradle.incremental", "enabled")
+        }
+    }
     // Work-around because new objenesis version are using MethodHandle.invoke :/
     configurations.all {
         resolutionStrategy {
@@ -16,30 +22,30 @@ allprojects {
 ext {
 
     // AndroidX libraries
-    annotation          = '1.0.1'
-    appcompat           = '1.0.2'
+    annotation          = '1.1.0'
+    appcompat           = '1.1.0-rc01'
     cardview            = '1.0.0'
-    constraintlayout    = '1.1.3'
-    core                = '1.0.1'
-    lifecycleExtensions = '2.0.0'
-    recyclerview        = '1.0.0'
-    room                = '2.0.0'
+    constraintlayout    = '2.0.0-beta2'
+    core                = '1.1.0-rc02'
+    lifecycleExtensions = '2.1.0-rc01'
+    recyclerview        = '1.1.0-beta01'
+    room                = '2.1.0'
 
     // Third party libraries
-    koin      = '2.0.1'
-    moshi     = '1.8.0'
-    okHttp    = '3.12.0'
-    retrofit2 = '2.5.0'
-    rxJava2   = '2.2.4'
+    coroutines = '1.2.2'
+    dagger2    = '2.24'
+    moshi      = '1.8.0'
+    okHttp     = '3.14.2'
+    retrofit2  = '2.6.0'
 
     // Testing
     androidTestArchCore = '2.0.0'
-    androidTestCore     = '1.1.0'
-    androidTestExt      = '1.1.0'
-    androidTestRules    = '1.1.1'
-    androidTestRunner   = '1.1.1'
+    androidTestCore     = '1.2.0'
+    androidTestExt      = '1.1.1'
+    androidTestRules    = '1.2.0'
+    androidTestRunner   = '1.2.0'
     assertJ             = '3.11.1'
-    espresso            = '3.1.1'
+    espresso            = '3.2.0'
     junit               = '4.12'
     mockk               = '1.9.3'
 
@@ -57,10 +63,12 @@ ext {
 
             core                            : "androidx.core:core:${core}",
 
-            koinAndroid                     : "org.koin:koin-android:${koin}",
-            koinViewModel                   : "org.koin:koin-androidx-viewmodel:${koin}",
+            dagger2                         : "com.google.dagger:dagger:${dagger2}",
+            dagger2Compiler                 : "com.google.dagger:dagger-compiler:${dagger2}",
 
             kotlinJdk                       : "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${kotlin_version}",
+            kotlinCoroutines                : "org.jetbrains.kotlinx:kotlinx-coroutines-core:${coroutines}",
+            kotlinCoroutinesAndroid         : "org.jetbrains.kotlinx:kotlinx-coroutines-android:${coroutines}",
 
             lifecycleExtensions             : "androidx.lifecycle:lifecycle-extensions:${lifecycleExtensions}",
 
@@ -73,14 +81,11 @@ ext {
             recyclerview                    : "androidx.recyclerview:recyclerview:${recyclerview}",
 
             retrofit2                       : "com.squareup.retrofit2:retrofit:${retrofit2}",
-            retrofitRxAdapter               : "com.squareup.retrofit2:adapter-rxjava2:${retrofit2}",
             retrofitConverterMoshi          : "com.squareup.retrofit2:converter-moshi:${retrofit2}",
 
             roomCompiler                    : "androidx.room:room-compiler:${room}",
             roomRuntime                     : "androidx.room:room-runtime:${room}",
-            roomRxJava2                     : "androidx.room:room-rxjava2:${room}",
-
-            rxJava2                         : "io.reactivex.rxjava2:rxjava:${rxJava2}",
+            roomKtx                         : "androidx.room:room-ktx:${room}",
     ]
 
     developmentDependencies = [
@@ -104,8 +109,6 @@ ext {
             espressoIntents     : "androidx.test.espresso:espresso-intents:${espresso}",
 
             junit               : "junit:junit:${junit}",
-
-            koinTest            : "org.koin:koin-test:${koin}",
 
             mockk               : "io.mockk:mockk:${mockk}",
             mockkAndroid        : "io.mockk:mockk-android:${mockk}",

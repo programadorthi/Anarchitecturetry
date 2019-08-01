@@ -1,12 +1,13 @@
 package br.com.programadorthi.anarchtecturetry.blockchain.data.remote
 
 import br.com.programadorthi.anarchtecturetry.blockchain.domain.Blockchain
-import br.com.programadorthi.base.exception.BaseException
+import br.com.programadorthi.base.remote.BaseRemoteMapper
 import br.com.programadorthi.base.remote.RemoteExecutor
-import io.mockk.every
+import br.com.programadorthi.base.shared.FailureType
+import br.com.programadorthi.base.shared.LayerResult
+import io.mockk.coEvery
 import io.mockk.mockk
-import io.reactivex.Single
-import io.reactivex.functions.Function
+import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Test
 
@@ -30,7 +31,7 @@ class BlockchainRemoteRepositoryImplTest {
     @Before
     fun setUp() {
 
-        every { blockchainService.getCurrentMarketPrice() } returns Single.just(raw)
+        coEvery { blockchainService.getCurrentMarketPrice() } returns raw
 
         blockchainRemoteRepository = BlockchainRemoteRepositoryImpl(
             blockchainCurrentValueMapper, blockchainMapper, blockchainService, remoteExecutor
@@ -38,49 +39,33 @@ class BlockchainRemoteRepositoryImplTest {
     }
 
     @Test
-    fun `should throw NoInternetConnectionException when there is no internet connection`() {
-
-        every {
-            remoteExecutor.checkConnectionAndThenMapper(
-                mapper = any<Function<BlockchainCurrentValueRaw, Blockchain>>(),
+    fun `should get a LayerResult Failure with NoInternetConnectionException when there is no internet connection`() {
+        coEvery {
+            remoteExecutor.checkConnectionMapperAndThenReturn(
+                mapper = any<BaseRemoteMapper<BlockchainCurrentValueRaw, Blockchain>>(),
                 action = any()
             )
-        } returns Single.error(BaseException.NoInternetConnectionException())
+        } returns LayerResult.failure(FailureType.NoInternetConnection)
 
-        val testObserver = blockchainRemoteRepository.getCurrentMarketPrice().test()
-
-        testObserver.awaitTerminalEvent()
-
-        testObserver
-            .assertNotComplete()
-            .assertError(BaseException.NoInternetConnectionException::class.java)
-
+        runBlocking {
+            val result = blockchainRemoteRepository.getCurrentMarketPrice()
+            assert(result is LayerResult.Failure && result.type is FailureType.NoInternetConnection)
+        }
     }
 
     @Test
-    fun `should throw EssentialParamMissingException when all API call current mar response is invalid`() {
-
-        every {
-            remoteExecutor.checkConnectionAndThenMapper(
-                mapper = any<Function<BlockchainCurrentValueRaw, Blockchain>>(),
+    fun `should get a LayerResult Failure with EssentialParamMissingException when all API response is invalid`() {
+        coEvery {
+            remoteExecutor.checkConnectionMapperAndThenReturn(
+                mapper = any<BaseRemoteMapper<BlockchainCurrentValueRaw, Blockchain>>(),
                 action = any()
             )
-        } returns Single.error(
-            BaseException.EssentialParamMissingException(
-                missingParam = listOf("field").joinToString(prefix = "[", postfix = "]"),
-                rawObject = raw
-            )
-        )
+        } returns LayerResult.failure(FailureType.EssentialParamsMissing)
 
-        val testObserver = blockchainRemoteRepository.getCurrentMarketPrice().test()
-
-        testObserver.awaitTerminalEvent()
-
-        testObserver
-            .assertNotComplete()
-            .assertError(BaseException.EssentialParamMissingException::class.java)
-            .assertErrorMessage("[field] are missing in received object: $raw")
-
+        runBlocking {
+            val result = blockchainRemoteRepository.getCurrentMarketPrice()
+            assert(result is LayerResult.Failure && result.type is FailureType.EssentialParamsMissing)
+        }
     }
 
 }

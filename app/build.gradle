@@ -16,8 +16,6 @@ android {
 
         minSdkVersion rootProject.ext.android.minSdkVersion
 
-        resConfigs rootProject.ext.android.resConfigs
-
         targetSdkVersion rootProject.ext.android.targetSdkVersion
         testInstrumentationRunner rootProject.ext.android.testRunner
 
@@ -28,13 +26,14 @@ android {
         versionName rootProject.ext.android.versionName
     }
 
-    dynamicFeatures = rootProject.ext.android.dynamicFeatures
-
     buildTypes {
         debug {
+            ext.alwaysUpdateBuildId = false
+            manifestPlaceholders += rootProject.ext.android.manifestPlaceholdersDev
             resValue "string", "app_name", "${rootProject.ext.android.applicationName} Debug"
         }
         release {
+            manifestPlaceholders += rootProject.ext.android.manifestPlaceholders
             minifyEnabled true
             resValue "string", "app_name", "${rootProject.ext.android.applicationName}"
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
@@ -46,6 +45,8 @@ android {
         targetCompatibility rootProject.ext.android.javaVersion
     }
 
+    dynamicFeatures = rootProject.ext.android.dynamicFeatures
+
     flavorDimensions "default"
 
     productFlavors {
@@ -54,6 +55,7 @@ android {
             buildConfigField("String", "API_BASE_URL", rootProject.ext.endpoints.development_endpoint)
             buildConfigField("String", "PACKAGE_NAME", "\"${rootProject.ext.android.applicationId}\"")
             minSdkVersion rootProject.ext.android.minSdkVersionDev
+            resConfigs rootProject.ext.android.resConfigs
             vectorDrawables.generatedDensities = rootProject.ext.android.generatedDensitiesDev
             vectorDrawables.useSupportLibrary = true
             versionNameSuffix "-dev"
@@ -63,6 +65,10 @@ android {
             buildConfigField("String", "PACKAGE_NAME", "\"${rootProject.ext.android.applicationId}\"")
         }
     }
+}
+
+kapt {
+    useBuildCache = true
 }
 
 dependencies {
@@ -81,16 +87,16 @@ dependencies {
     // Architecture components
     implementation rootProject.ext.commonDependencies.lifecycleExtensions
 
-    // Koin
-    implementation rootProject.ext.commonDependencies.koinAndroid
-    implementation rootProject.ext.commonDependencies.koinViewModel
+    // Dagger 2
+    implementation rootProject.ext.commonDependencies.dagger2
+    kapt rootProject.ext.commonDependencies.dagger2Compiler
 
     // Kotlin
     implementation rootProject.ext.commonDependencies.kotlinJdk
+    implementation rootProject.ext.commonDependencies.kotlinCoroutines
 
     // Moshi
     implementation rootProject.ext.commonDependencies.moshi
-    kapt rootProject.ext.commonDependencies.moshiCodegen
 
     // OkHttp
     implementation rootProject.ext.commonDependencies.okHttp
@@ -98,16 +104,7 @@ dependencies {
 
     // Retrofit
     implementation rootProject.ext.commonDependencies.retrofit2
-    implementation rootProject.ext.commonDependencies.retrofitRxAdapter
     implementation rootProject.ext.commonDependencies.retrofitConverterMoshi
-
-    // Room
-    implementation rootProject.ext.commonDependencies.roomRuntime
-    implementation rootProject.ext.commonDependencies.roomRxJava2
-    kapt rootProject.ext.commonDependencies.roomCompiler
-
-    // RxJava 2
-    implementation rootProject.ext.commonDependencies.rxJava2
 
     // Timber
     implementation rootProject.ext.developmentDependencies.timber
@@ -128,5 +125,4 @@ dependencies {
     androidTestImplementation rootProject.ext.testingDependencies.espressoContrib
     androidTestImplementation rootProject.ext.testingDependencies.espressoIntents
     androidTestImplementation rootProject.ext.testingDependencies.androidTestArchCore
-    androidTestImplementation rootProject.ext.testingDependencies.koinTest
 }

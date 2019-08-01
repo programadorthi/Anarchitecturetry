@@ -6,19 +6,19 @@ import java.util.*
 
 class BlockchainCurrentValueRemoteMapper : BaseRemoteMapper<BlockchainCurrentValueRaw, Blockchain>() {
 
-    override fun checkRequiredParamsBeforeCopyValues(raw: BlockchainCurrentValueRaw): List<String> {
+    override fun checkParams(raw: BlockchainCurrentValueRaw): List<String> {
         val missingFields = mutableListOf<String>()
         if (raw.timestamp == null) {
-            missingFields.add("timestamp")
+            missingFields.add(BlockchainCurrentValueRaw.TIMESTAMP_FIELD)
         }
 
         if (raw.value == null) {
-            missingFields.add("market_price_usd")
+            missingFields.add(BlockchainCurrentValueRaw.MARKET_PRICE_FIELD)
         }
         return missingFields
     }
 
-    override fun copyValuesAfterCheckRequiredParams(raw: BlockchainCurrentValueRaw): Blockchain {
+    override fun copyValues(raw: BlockchainCurrentValueRaw): Blockchain {
         return Blockchain(
             // The timestamp returned in the API is milliseconds already
             date = Date(raw.timestamp!!),

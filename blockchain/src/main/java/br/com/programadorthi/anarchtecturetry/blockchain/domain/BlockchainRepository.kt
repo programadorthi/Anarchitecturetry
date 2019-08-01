@@ -1,16 +1,11 @@
 package br.com.programadorthi.anarchtecturetry.blockchain.domain
 
-import io.reactivex.Completable
-import io.reactivex.Flowable
+import br.com.programadorthi.base.shared.LayerResult
 
 interface BlockchainRepository {
 
-    fun getCurrentMarketPrice(): Flowable<Blockchain>
+    suspend fun getCurrentMarketPrice(): LayerResult<Blockchain>
 
-    fun getAllMarketPrices(): Flowable<List<Blockchain>>
-
-    fun fetchCurrentMarketPrice(): Completable
-
-    fun fetchAllMarketPrices(): Completable
+    suspend fun getAllMarketPrices(): LayerResult<List<Blockchain>>
 
 }

@@ -4,8 +4,6 @@ import br.com.programadorthi.base.exception.BaseException
 import okhttp3.Interceptor
 import okhttp3.Request
 import okhttp3.Response
-import timber.log.Timber
-import java.net.HttpURLConnection
 import java.net.UnknownHostException
 
 class ApplicationInterceptor(private val tokenProvider: TokenProvider) : Interceptor {
@@ -23,16 +21,7 @@ class ApplicationInterceptor(private val tokenProvider: TokenProvider) : Interce
             return response
         }
 
-        when (response.code()) {
-            HttpURLConnection.HTTP_BAD_REQUEST -> {
-                // Capture your backend validation and replace the call below
-                throw BaseException.HttpCallException(code = response.code())
-            }
-            HttpURLConnection.HTTP_UNAUTHORIZED -> {
-                throw BaseException.UnauthorizedException
-            }
-            else -> throw BaseException.HttpCallException(code = response.code())
-        }
+        throw BaseException.HttpCallException(code = response.code())
     }
 
     private fun refreshToken(response: Response?) {

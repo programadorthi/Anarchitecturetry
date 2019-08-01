@@ -1,43 +1,107 @@
 package br.com.programadorthi.anarchtecturetry.blockchain.data.local
 
 import br.com.programadorthi.anarchtecturetry.blockchain.domain.Blockchain
-import io.reactivex.Flowable
-import io.reactivex.functions.Function
+import br.com.programadorthi.base.exception.CrashConsumer
+import br.com.programadorthi.base.shared.LayerResult
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.withContext
+import java.util.*
 
 class BlockchainLocalRepositoryImpl(
     private val blockchainDao: BlockchainDao,
-    private val blockchainCurrentValueLocalMapper: Function<List<BlockchainCurrentValueEntity>, Blockchain>,
-    private val blockchainLocalMapper: Function<List<BlockchainEntity>, List<Blockchain>>
+    private val crashConsumer: CrashConsumer,
+    private val dispatcher: CoroutineDispatcher
 ) : BlockchainLocalRepository {
 
-    override fun getCurrentMarketPrice(): Flowable<Blockchain> {
-        return blockchainDao
-            .getCurrentValue()
-            .map(blockchainCurrentValueLocalMapper)
-    }
+    override suspend fun getCurrentMarketPrice(): LayerResult<Blockchain> {
+        return withContext(dispatcher) {
+            val currentValues = try {
+                blockchainDao.getCurrentValue()
+            } catch (ex: Exception) {
+                crashConsumer.report(ex)
+                return@withContext LayerResult.fromException(ex)
+            }
 
-    override fun getAllMarketPrices(): Flowable<List<Blockchain>> {
-        return blockchainDao
-            .getHistoricalMarketPrices()
-            .map(blockchainLocalMapper)
-    }
+            if (currentValues.isEmpty()) {
+                return@withContext LayerResult.Success(Blockchain.EMPTY)
+            }
 
-    override fun insertCurrentValueInTransaction(blockchain: Blockchain) {
-        val entity = BlockchainCurrentValueEntity(
-            timestamp = blockchain.date.time,
-            value = blockchain.value
-        )
-        blockchainDao.insertCurrentValueInTransaction(entity)
-    }
-
-    override fun updateMarketPricesInTransaction(prices: List<Blockchain>) {
-        val entities = prices.map { blockchain ->
-            BlockchainEntity(
-                timestamp = blockchain.date.time,
-                value = blockchain.value
+            val entity = currentValues.first()
+            val blockchain = Blockchain(
+                date = Date(entity.timestamp),
+                value = entity.value
             )
+            return@withContext LayerResult.Success(blockchain)
         }
-        blockchainDao.updateMarketPricesInTransaction(entities)
+    }
+
+    override suspend fun getAllMarketPrices(): LayerResult<List<Blockchain>> {
+        return withContext(dispatcher) {
+            val prices = try {
+                blockchainDao.getHistoricalMarketPrices()
+            } catch (ex: Exception) {
+                crashConsumer.report(ex)
+                return@withContext LayerResult.fromException(ex)
+            }
+
+            if (prices.isEmpty()) {
+                return@withContext LayerResult.Success(emptyList<Blockchain>())
+            }
+
+            val mapped = prices.map { entity ->
+                Blockchain(
+                    date = Date(entity.timestamp),
+                    value = entity.value
+                )
+            }
+            return@withContext LayerResult.Success(mapped)
+        }
+    }
+
+    override suspend fun insertCurrentValueInTransaction(
+        blockchain: Blockchain
+    ): LayerResult<Boolean> {
+        return withContext(dispatcher) {
+            if (blockchain == Blockchain.EMPTY) {
+                return@withContext LayerResult.success(false)
+            }
+
+            return@withContext try {
+                val entity = BlockchainCurrentValueEntity(
+                    timestamp = blockchain.date.time,
+                    value = blockchain.value
+                )
+                blockchainDao.insertCurrentValueInTransaction(entity)
+                LayerResult.success(true)
+            } catch (ex: Exception) {
+                crashConsumer.report(ex)
+                return@withContext LayerResult.fromException(ex)
+            }
+        }
+    }
+
+    override suspend fun updateMarketPricesInTransaction(
+        prices: List<Blockchain>
+    ): LayerResult<Boolean> {
+        return withContext(dispatcher) {
+            if (prices.isEmpty()) {
+                return@withContext LayerResult.success(false)
+            }
+
+            return@withContext try {
+                val entities = prices.map { blockchain ->
+                    BlockchainEntity(
+                        timestamp = blockchain.date.time,
+                        value = blockchain.value
+                    )
+                }
+                blockchainDao.updateMarketPricesInTransaction(entities)
+                LayerResult.success(true)
+            } catch (ex: Exception) {
+                crashConsumer.report(ex)
+                return@withContext LayerResult.fromException(ex)
+            }
+        }
     }
 
 }

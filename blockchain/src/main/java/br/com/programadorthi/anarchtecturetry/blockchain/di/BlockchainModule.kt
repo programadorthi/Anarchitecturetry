@@ -1,99 +1,140 @@
 package br.com.programadorthi.anarchtecturetry.blockchain.di
 
-import androidx.room.Room
+import android.content.Context
 import br.com.programadorthi.anarchtecturetry.blockchain.data.BlockchainRepositoryImpl
-import br.com.programadorthi.anarchtecturetry.blockchain.data.local.*
+import br.com.programadorthi.anarchtecturetry.blockchain.data.local.BlockchainDao
+import br.com.programadorthi.anarchtecturetry.blockchain.data.local.BlockchainDatabase
+import br.com.programadorthi.anarchtecturetry.blockchain.data.local.BlockchainLocalRepository
+import br.com.programadorthi.anarchtecturetry.blockchain.data.local.BlockchainLocalRepositoryImpl
 import br.com.programadorthi.anarchtecturetry.blockchain.data.remote.*
 import br.com.programadorthi.anarchtecturetry.blockchain.domain.Blockchain
 import br.com.programadorthi.anarchtecturetry.blockchain.domain.BlockchainInteractor
 import br.com.programadorthi.anarchtecturetry.blockchain.domain.BlockchainInteractorImpl
 import br.com.programadorthi.anarchtecturetry.blockchain.domain.BlockchainRepository
 import br.com.programadorthi.anarchtecturetry.blockchain.presentation.BlockchainViewModel
+import br.com.programadorthi.anarchtecturetry.di.scopes.FeatureScope
+import br.com.programadorthi.base.exception.CrashConsumer
+import br.com.programadorthi.base.formatter.TextFormatter
 import br.com.programadorthi.base.remote.BaseRemoteMapper
-import br.com.programadorthi.base.utils.ANDROID_SCHEDULER
+import br.com.programadorthi.base.remote.RemoteExecutor
 import br.com.programadorthi.base.utils.DATE_FORMATTER
+import br.com.programadorthi.base.utils.IO_DISPATCHER
 import br.com.programadorthi.base.utils.MONEY_FORMATTER
-import io.reactivex.functions.Function
-import org.koin.android.ext.koin.androidContext
-import org.koin.androidx.viewmodel.dsl.viewModel
-import org.koin.core.qualifier.named
-import org.koin.dsl.module
+import dagger.Module
+import dagger.Provides
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
 import retrofit2.Retrofit
+import java.math.BigDecimal
+import java.util.*
+import javax.inject.Named
 
-private const val DATABASE_NAME = "blockchain-database"
-
-private const val LOCAL_MAPPER_CURRENT_VALUE = "LOCAL_MAPPER_CURRENT_VALUE"
-private const val LOCAL_MAPPER_LIST_VALUE = "LOCAL_MAPPER_LIST_VALUE"
-private const val REMOTE_MAPPER_CURRENT_VALUE = "REMOTE_MAPPER_CURRENT_VALUE"
-private const val REMOTE_MAPPER_LIST_VALUE = "REMOTE_MAPPER_LIST_VALUE"
-
-val blockchainModule = module {
+@Module
+object BlockchainModule {
 
     // =================================================
     // =============== DATA LOCAL ======================
     // =================================================
 
-    single { Room.databaseBuilder(androidContext(), BlockchainDatabase::class.java, DATABASE_NAME).build() }
+    @Provides
+    @FeatureScope
+    @JvmStatic
+    fun providesBlockchainDatabase(
+        context: Context
+    ): BlockchainDatabase = BlockchainDatabase.getInstance(context)
 
-    factory { get<BlockchainDatabase>().blockchainDao() }
+    @Provides
+    @FeatureScope
+    @JvmStatic
+    fun providesBlockchainDao(
+        database: BlockchainDatabase
+    ): BlockchainDao = database.blockchainDao()
 
-    factory<Function<List<BlockchainCurrentValueEntity>, Blockchain>>(named(name = LOCAL_MAPPER_CURRENT_VALUE)) {
-        BlockchainCurrentValueLocalMapper()
-    }
-
-    factory<Function<List<BlockchainEntity>, List<Blockchain>>>(named(name = LOCAL_MAPPER_LIST_VALUE)) {
-        BlockchainLocalMapper()
-    }
-
-    factory<BlockchainLocalRepository> {
-        BlockchainLocalRepositoryImpl(
-            blockchainDao = get(),
-            blockchainCurrentValueLocalMapper = get(named(name = LOCAL_MAPPER_CURRENT_VALUE)),
-            blockchainLocalMapper = get(named(name = LOCAL_MAPPER_LIST_VALUE))
-        )
-    }
+    @Provides
+    @FeatureScope
+    @JvmStatic
+    fun provideBlockchainLocalRepository(
+        blockchainDao: BlockchainDao,
+        crashConsumer: CrashConsumer,
+        @Named(IO_DISPATCHER) dispatcher: CoroutineDispatcher
+    ): BlockchainLocalRepository =
+        BlockchainLocalRepositoryImpl(blockchainDao, crashConsumer, dispatcher)
 
     // =================================================
     // =============== DATA REMOTE =====================
     // =================================================
 
-    factory<BaseRemoteMapper<BlockchainCurrentValueRaw, Blockchain>>(named(name = REMOTE_MAPPER_CURRENT_VALUE)) {
+    @Provides
+    @FeatureScope
+    @JvmStatic
+    fun provideBlockchainCurrentValueRemoteMapper(): BaseRemoteMapper<BlockchainCurrentValueRaw, Blockchain> =
         BlockchainCurrentValueRemoteMapper()
-    }
 
-    factory<BaseRemoteMapper<BlockchainResponseRaw, List<Blockchain>>>(named(name = REMOTE_MAPPER_LIST_VALUE)) {
+    @Provides
+    @FeatureScope
+    @JvmStatic
+    fun provideBlockchainRemoteMapper(): BaseRemoteMapper<BlockchainResponseRaw, List<Blockchain>> =
         BlockchainRemoteMapper()
-    }
 
-    factory<BlockchainService> { get<Retrofit>().create(BlockchainService::class.java) }
+    @Provides
+    @FeatureScope
+    @JvmStatic
+    fun provideBlockchainService(retrofit: Retrofit): BlockchainService =
+        retrofit.create(BlockchainService::class.java)
 
-    factory<BlockchainRemoteRepository> {
+    @Provides
+    @FeatureScope
+    @JvmStatic
+    fun provideBlockchainRemoteRepository(
+        blockchainCurrentValueMapper: BaseRemoteMapper<BlockchainCurrentValueRaw, Blockchain>,
+        blockchainMapper: BaseRemoteMapper<BlockchainResponseRaw, List<Blockchain>>,
+        blockchainService: BlockchainService,
+        remoteExecutor: RemoteExecutor
+    ): BlockchainRemoteRepository =
         BlockchainRemoteRepositoryImpl(
-            blockchainCurrentValueMapper = get(named(name = REMOTE_MAPPER_CURRENT_VALUE)),
-            blockchainMapper = get(named(name = REMOTE_MAPPER_LIST_VALUE)),
-            blockchainService = get(),
-            remoteExecutor = get()
+            blockchainCurrentValueMapper = blockchainCurrentValueMapper,
+            blockchainMapper = blockchainMapper,
+            blockchainService = blockchainService,
+            remoteExecutor = remoteExecutor
         )
-    }
 
     // =================================================
     // ================== DOMAIN =======================
     // =================================================
 
-    factory<BlockchainRepository> { BlockchainRepositoryImpl(localRepository = get(), remoteRepository = get()) }
+    @Provides
+    @FeatureScope
+    @JvmStatic
+    fun provideBlockchainRepository(
+        blockchainLocalRepository: BlockchainLocalRepository,
+        blockchainRemoteRepository: BlockchainRemoteRepository
+    ): BlockchainRepository =
+        BlockchainRepositoryImpl(blockchainLocalRepository, blockchainRemoteRepository)
 
-    factory<BlockchainInteractor> { BlockchainInteractorImpl(repository = get()) }
+    @Provides
+    @FeatureScope
+    @JvmStatic
+    fun provideBlockchainInteractor(
+        blockchainRepository: BlockchainRepository
+    ): BlockchainInteractor = BlockchainInteractorImpl(blockchainRepository)
 
     // =================================================
     // =============== PRESENTATION ====================
     // =================================================
 
-    viewModel {
+    @Provides
+    @JvmStatic
+    fun provideBlockchainViewModel(
+        blockchainInteractor: BlockchainInteractor,
+        coroutineScope: CoroutineScope,
+        @Named(DATE_FORMATTER) dateFormatter: TextFormatter<Date>,
+        @Named(MONEY_FORMATTER) moneyFormatter: TextFormatter<BigDecimal>
+    ): BlockchainViewModel =
         BlockchainViewModel(
-            blockchainInteractor = get(),
-            dateFormatter = get(named(name = DATE_FORMATTER)),
-            moneyFormatter = get(named(name = MONEY_FORMATTER)),
-            scheduler = get(named(name = ANDROID_SCHEDULER))
+            blockchainInteractor,
+            dateFormatter,
+            moneyFormatter,
+            coroutineScope
         )
-    }
+
 }

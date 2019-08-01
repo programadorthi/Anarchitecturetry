@@ -7,19 +7,19 @@ import java.util.*
 
 class BlockchainRemoteMapper : BaseRemoteMapper<BlockchainResponseRaw, List<Blockchain>>() {
 
-    override fun checkRequiredParamsBeforeCopyValues(raw: BlockchainResponseRaw): List<String> {
+    override fun checkParams(raw: BlockchainResponseRaw): List<String> {
         val missingFields = mutableListOf<String>()
         if (raw.status == null) {
-            missingFields.add("status")
+            missingFields.add(BlockchainResponseRaw.STATUS_FIELD)
         }
 
         if (raw.values == null) {
-            missingFields.add("values")
+            missingFields.add(BlockchainResponseRaw.VALUES_FIELD)
         }
         return missingFields
     }
 
-    override fun copyValuesAfterCheckRequiredParams(raw: BlockchainResponseRaw): List<Blockchain> {
+    override fun copyValues(raw: BlockchainResponseRaw): List<Blockchain> {
         val values = raw.values!!
         if (values.isEmpty()) {
             return emptyList()

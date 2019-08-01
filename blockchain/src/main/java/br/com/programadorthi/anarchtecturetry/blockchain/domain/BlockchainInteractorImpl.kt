@@ -1,20 +1,17 @@
 package br.com.programadorthi.anarchtecturetry.blockchain.domain
 
-import io.reactivex.Completable
-import io.reactivex.Flowable
+import br.com.programadorthi.base.shared.LayerResult
 
 class BlockchainInteractorImpl(
     private val repository: BlockchainRepository
 ) : BlockchainInteractor {
 
-    override fun getCurrentMarketPrice(): Flowable<Blockchain> =
-        repository.getCurrentMarketPrice()
+    override suspend fun getCurrentMarketPrice(): LayerResult<Blockchain> {
+        return repository.getCurrentMarketPrice()
+    }
 
-    override fun getAllMarketPrices(): Flowable<List<Blockchain>> =
-        repository.getAllMarketPrices()
-
-    override fun fetchCurrentMarketPrice(): Completable = repository.fetchCurrentMarketPrice()
-
-    override fun fetchAllMarketPrices(): Completable = repository.fetchAllMarketPrices()
+    override suspend fun getAllMarketPrices(): LayerResult<List<Blockchain>> {
+        return repository.getAllMarketPrices()
+    }
 
 }

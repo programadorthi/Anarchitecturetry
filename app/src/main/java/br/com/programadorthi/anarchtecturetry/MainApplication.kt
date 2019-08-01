@@ -1,18 +1,20 @@
 package br.com.programadorthi.anarchtecturetry
 
 import android.app.Application
-import br.com.programadorthi.anarchtecturetry.di.mainModule
-import org.koin.android.ext.koin.androidContext
-import org.koin.android.ext.koin.androidLogger
-import org.koin.core.context.startKoin
+import android.content.Context
+import br.com.programadorthi.anarchtecturetry.di.DaggerMainComponent
+import br.com.programadorthi.anarchtecturetry.di.MainComponent
 import timber.log.Timber
 
 class MainApplication : Application() {
 
+    private val mainComponent: MainComponent by lazy {
+        DaggerMainComponent.factory().mainComponent(this@MainApplication)
+    }
+
     override fun onCreate() {
         super.onCreate()
         initTimber()
-        initKoin()
     }
 
     private fun initTimber() {
@@ -21,11 +23,10 @@ class MainApplication : Application() {
         }
     }
 
-    private fun initKoin() {
-        startKoin {
-            androidContext(this@MainApplication)
-            androidLogger()
-            modules(mainModule)
+    companion object {
+        @JvmStatic
+        fun mainComponent(context: Context): MainComponent {
+            return (context.applicationContext as MainApplication).mainComponent
         }
     }
 

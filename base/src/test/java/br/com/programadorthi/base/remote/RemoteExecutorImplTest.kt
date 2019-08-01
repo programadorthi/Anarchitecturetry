@@ -1,20 +1,20 @@
 package br.com.programadorthi.base.remote
 
 import br.com.programadorthi.base.exception.BaseException
+import br.com.programadorthi.base.exception.CrashConsumer
+import br.com.programadorthi.base.shared.FailureType
+import br.com.programadorthi.base.shared.LayerResult
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import io.reactivex.Completable
-import io.reactivex.Single
-import io.reactivex.functions.Consumer
-import io.reactivex.functions.Function
-import io.reactivex.schedulers.Schedulers
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Test
 
 class RemoteExecutorImplTest {
 
-    private val crashConsumer = mockk<Consumer<Throwable>>()
+    private val crashConsumer = mockk<CrashConsumer>()
 
     private val networkHandler = mockk<NetworkHandler>()
 
@@ -24,95 +24,83 @@ class RemoteExecutorImplTest {
     fun setUp() {
         every { networkHandler.hasInternetConnection() } returns true
 
-        every { crashConsumer.accept(any()) } answers { nothing }
+        every { crashConsumer.report(any()) } answers { nothing }
 
         remoteExecutor = RemoteExecutorImpl(
             crashConsumer = crashConsumer,
             networkHandler = networkHandler,
-            scheduler = Schedulers.io()
+            dispatcher = Dispatchers.Default
         )
     }
 
     @Test
-    fun `should throw NoInternetConnectionException when there is no internet connection`() {
+    fun `should get a LayerResult Failure with a NoInternetConnectionException when there is no internet connection`() {
         every { networkHandler.hasInternetConnection() } returns false
 
-        val testObserver = remoteExecutor.checkConnectionAndThenComplete(
-            action = Completable.complete()
-        ).test()
-
-        testObserver.awaitTerminalEvent()
-
-        testObserver
-            .assertNotComplete()
-            .assertError { err -> err is BaseException.NoInternetConnectionException }
+        runBlocking {
+            val result = remoteExecutor.checkConnectionAndThenDone {}
+            assert(result is LayerResult.Failure && result.type is FailureType.NoInternetConnection)
+        }
     }
 
     @Test
     fun `should report crash using crash consumer when there is any exception`() {
-        val expected = Throwable("this is an exception")
+        runBlocking {
+            val result = remoteExecutor.checkConnectionAndThenDone(action = {
+                throw BaseException.HttpCallException(code = 500)
+            })
 
-        val testObserver = remoteExecutor.checkConnectionAndThenComplete(
-            action = Completable.error(expected)
-        ).test()
+            verify(exactly = 1) { crashConsumer.report(ofType(BaseException.HttpCallException::class)) }
 
-        testObserver.awaitTerminalEvent()
-
-        testObserver
-            .assertNotComplete()
-            .assertError { err -> err.message == expected.message }
-            .assertOf { verify { crashConsumer.accept(expected) } }
+            assert(
+                result is LayerResult.Failure &&
+                        result.type is FailureType.HttpCall &&
+                        (result.type as FailureType.HttpCall).code == 500
+            )
+        }
     }
 
     @Test
     fun `should API call complete when there is internet connection`() {
-        val testObserver = remoteExecutor.checkConnectionAndThenComplete(
-            action = Completable.complete()
-        ).test()
+        runBlocking {
+            val result = remoteExecutor.checkConnectionAndThenDone { }
 
-        testObserver.awaitTerminalEvent()
+            verify(exactly = 0) { crashConsumer.report(any()) }
 
-        testObserver
-            .assertComplete()
-            .assertNoErrors()
+            assert(result is LayerResult.Success && result.data)
+        }
     }
 
     @Test
     fun `should API call get single without mapper when there is internet connection`() {
-        val response = "this is a response"
+        val expected = "this is a response"
 
-        val testObserver = remoteExecutor.checkConnectionAndThenSingle(
-            action = Single.just(response)
-        ).test()
+        runBlocking {
+            val result = remoteExecutor.checkConnectionAndThenReturn { expected }
 
-        testObserver.awaitTerminalEvent()
+            verify(exactly = 0) { crashConsumer.report(any()) }
 
-        testObserver
-            .assertComplete()
-            .assertNoErrors()
-            .assertValue(response)
+            assert(result is LayerResult.Success && result.data == expected)
+        }
     }
 
     @Test
     fun `should API call get single with mapper when there is internet connection`() {
         val input = "1234"
-        val output = 1234
+        val expected = 1234
 
-        val mapper = mockk<Function<String, Int>>()
+        val mapper = mockk<BaseRemoteMapper<String, Int>>()
 
-        every { mapper.apply(input) } returns output
+        every { mapper.apply(input) } returns expected
 
-        val testObserver = remoteExecutor.checkConnectionAndThenMapper(
-            mapper = mapper,
-            action = Single.just(input)
-        ).test()
+        runBlocking {
+            val result = remoteExecutor.checkConnectionMapperAndThenReturn(mapper) { input }
 
-        testObserver.awaitTerminalEvent()
+            verify(exactly = 0) { crashConsumer.report(any()) }
 
-        testObserver
-            .assertComplete()
-            .assertNoErrors()
-            .assertValue(output)
+            assert(result is LayerResult.Success && result.data == expected)
+        }
+
     }
 
 }
