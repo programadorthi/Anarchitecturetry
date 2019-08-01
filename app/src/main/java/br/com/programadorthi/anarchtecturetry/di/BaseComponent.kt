@@ -5,8 +5,8 @@ import br.com.programadorthi.anarchtecturetry.MainApplication
 
 fun Activity.mainComponent(): MainComponent = MainApplication.mainComponent(this)
 
-interface BaseInjector<Target, Component> {
-    fun inject(target: Target): Component
+interface BaseComponent<Target> {
+    fun inject(target: Target)
 }
 
-interface BaseActivityInjector<Target: Activity, Component> : BaseInjector<Target, Component>
+interface BaseActivityComponent<Target : Activity> : BaseComponent<Target>

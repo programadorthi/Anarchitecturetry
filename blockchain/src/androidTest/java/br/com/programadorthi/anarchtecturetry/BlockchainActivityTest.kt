@@ -3,44 +3,39 @@ package br.com.programadorthi.anarchtecturetry
 import androidx.lifecycle.MutableLiveData
 import androidx.test.espresso.intent.rule.IntentsTestRule
 import br.com.programadorthi.anarchtecturetry.blockchain.R
+import br.com.programadorthi.anarchtecturetry.blockchain.di.inject
 import br.com.programadorthi.anarchtecturetry.blockchain.presentation.BlockchainActivity
 import br.com.programadorthi.anarchtecturetry.blockchain.presentation.BlockchainViewData
 import br.com.programadorthi.anarchtecturetry.blockchain.presentation.BlockchainViewModel
 import br.com.programadorthi.base.presentation.ViewState
-import io.mockk.Runs
-import io.mockk.every
-import io.mockk.just
-import io.mockk.mockk
+import br.com.programadorthi.base.shared.FailureType
+import io.mockk.*
 import org.junit.*
-import org.koin.core.context.startKoin
-import org.koin.core.context.stopKoin
-import org.koin.dsl.module
-import org.koin.test.inject
 
 class BlockchainActivityTest : BaseEspressoTest() {
 
     @get:Rule
     val activityTestRule = IntentsTestRule(BlockchainActivity::class.java, true, false)
 
-    private val viewModel: BlockchainViewModel by inject()
+    private val viewModel = mockk<BlockchainViewModel>()
 
     private val currentMarketPrice = MutableLiveData<ViewState<BlockchainViewData>>()
 
     private val marketPrices = MutableLiveData<ViewState<List<BlockchainViewData>>>()
 
+    companion object {
+        private const val INJECTOR_CLASS =
+            "br.com.programadorthi.anarchtecturetry.blockchain.di.BlockchainInjector.kt"
+    }
+
     @BeforeClass
-    fun initialSetUp() {
-        val mockModule = module {
-            factory { mockk<BlockchainViewModel>() }
-        }
-        startKoin {
-            modules(mockModule)
-        }
+    fun initialize() {
+        mockkStatic(INJECTOR_CLASS)
     }
 
     @AfterClass
     fun clean() {
-        stopKoin()
+        unmockkStatic(INJECTOR_CLASS)
     }
 
     @Before
@@ -50,6 +45,10 @@ class BlockchainActivityTest : BaseEspressoTest() {
         every { viewModel.currentMarketPrice } returns currentMarketPrice
         every { viewModel.marketPrices } returns marketPrices
         every { viewModel.initialize() } just Runs
+
+        every { inject(any()) } answers {
+            activityTestRule.activity.blockchainViewModel = viewModel
+        }
 
         activityTestRule.launchActivity(null)
     }
@@ -70,7 +69,7 @@ class BlockchainActivityTest : BaseEspressoTest() {
     @Test
     fun whenStartActivity_shouldShowCurrentMarketPriceLoadingState() {
         activityTestRule.activity.runOnUiThread {
-            currentMarketPrice.value = ViewState.Loading
+            currentMarketPrice.value = ViewState.Loading()
         }
 
         onViewWithId(resId = R.id.currentMarketPricesProgressBar)
@@ -89,7 +88,7 @@ class BlockchainActivityTest : BaseEspressoTest() {
     @Test
     fun whenStartActivity_shouldShowMarketPricesLoadingState() {
         activityTestRule.activity.runOnUiThread {
-            marketPrices.value = ViewState.Loading
+            marketPrices.value = ViewState.Loading()
         }
 
         onViewWithId(resId = R.id.marketPricesProgressBar)
@@ -141,7 +140,7 @@ class BlockchainActivityTest : BaseEspressoTest() {
     @Test
     fun whenStartActivityAndCurrentMarketPriceHasError_shouldShowCurrentMarketErrorText() {
         activityTestRule.activity.runOnUiThread {
-            currentMarketPrice.value = ViewState.Failure(Exception())
+            currentMarketPrice.value = ViewState.Failure(FailureType.NoInternetConnection)
         }
 
         onViewWithId(resId = R.id.currentMarketPricesProgressBar)
@@ -160,7 +159,7 @@ class BlockchainActivityTest : BaseEspressoTest() {
     @Test
     fun whenStartActivityAndHistoricalMarketPricesHasError_shouldShowMarketPricesErrorText() {
         activityTestRule.activity.runOnUiThread {
-            marketPrices.value = ViewState.Failure(Exception())
+            marketPrices.value = ViewState.Failure(FailureType.NoInternetConnection)
         }
 
         onViewWithId(resId = R.id.marketPricesProgressBar)

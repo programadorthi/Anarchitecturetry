@@ -33,7 +33,7 @@ class NetworkHandlerImplTest {
 
         val result = networkHandler.hasInternetConnection()
 
-        assertThat(result).isFalse
+        assertThat(result).isFalse()
     }
 
     @Test
@@ -45,7 +45,7 @@ class NetworkHandlerImplTest {
 
         val result = networkHandler.hasInternetConnection()
 
-        assertThat(result).isFalse
+        assertThat(result).isFalse()
     }
 
     @Test
@@ -56,7 +56,7 @@ class NetworkHandlerImplTest {
 
         val result = networkHandler.hasInternetConnection()
 
-        assertThat(result).isFalse
+        assertThat(result).isFalse()
     }
 
     @Test
@@ -67,6 +67,6 @@ class NetworkHandlerImplTest {
 
         val result = networkHandler.hasInternetConnection()
 
-        assertThat(result).isTrue
+        assertThat(result).isTrue()
     }
 }

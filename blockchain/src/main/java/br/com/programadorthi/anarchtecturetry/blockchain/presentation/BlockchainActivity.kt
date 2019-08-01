@@ -6,31 +6,31 @@ import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import br.com.programadorthi.anarchtecturetry.blockchain.R
-import br.com.programadorthi.anarchtecturetry.blockchain.di.BlockchainComponent
-import br.com.programadorthi.anarchtecturetry.blockchain.di.BlockchainInjector
+import br.com.programadorthi.anarchtecturetry.blockchain.di.inject
 import br.com.programadorthi.anarchtecturetry.blockchain.presentation.adapter.BlockchainAdapter
-import br.com.programadorthi.anarchtecturetry.utils.getOrCreateViewModel
 import br.com.programadorthi.base.extension.setVisible
 import br.com.programadorthi.base.presentation.ViewState
 import br.com.programadorthi.base.shared.FailureType
 import kotlinx.android.synthetic.main.activity_blockchain.*
+import javax.inject.Inject
 import br.com.programadorthi.anarchtecturetry.R as appResources
 
 class BlockchainActivity : AppCompatActivity() {
 
+    @Inject
+    lateinit var blockchainViewModel: BlockchainViewModel
+
     private val blockchainAdapter = BlockchainAdapter()
 
-    private lateinit var blockchainViewModel: BlockchainViewModel
-
     override fun onCreate(savedInstanceState: Bundle?) {
-        val component = BlockchainInjector.inject(this)
-
         super.onCreate(savedInstanceState)
+
+        inject(this)
 
         setContentView(R.layout.activity_blockchain)
 
         initRecyclerView()
-        initViewModel(component)
+        initViewModel()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -51,9 +51,7 @@ class BlockchainActivity : AppCompatActivity() {
         marketPricesRecyclerView.adapter = blockchainAdapter
     }
 
-    private fun initViewModel(component: BlockchainComponent) {
-        blockchainViewModel = getOrCreateViewModel { component.blockchainViewModel() }
-
+    private fun initViewModel() {
         blockchainViewModel.currentMarketPrice.observe(this, Observer { state ->
             updateCurrentMarketPrice(state)
         })

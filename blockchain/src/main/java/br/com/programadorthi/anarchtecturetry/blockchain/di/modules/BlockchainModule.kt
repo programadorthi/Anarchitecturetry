@@ -1,4 +1,4 @@
-package br.com.programadorthi.anarchtecturetry.blockchain.di
+package br.com.programadorthi.anarchtecturetry.blockchain.di.modules
 
 import android.content.Context
 import br.com.programadorthi.anarchtecturetry.blockchain.data.BlockchainRepositoryImpl
@@ -11,22 +11,15 @@ import br.com.programadorthi.anarchtecturetry.blockchain.domain.Blockchain
 import br.com.programadorthi.anarchtecturetry.blockchain.domain.BlockchainInteractor
 import br.com.programadorthi.anarchtecturetry.blockchain.domain.BlockchainInteractorImpl
 import br.com.programadorthi.anarchtecturetry.blockchain.domain.BlockchainRepository
-import br.com.programadorthi.anarchtecturetry.blockchain.presentation.BlockchainViewModel
 import br.com.programadorthi.anarchtecturetry.di.scopes.FeatureScope
 import br.com.programadorthi.base.exception.CrashConsumer
-import br.com.programadorthi.base.formatter.TextFormatter
 import br.com.programadorthi.base.remote.BaseRemoteMapper
 import br.com.programadorthi.base.remote.RemoteExecutor
-import br.com.programadorthi.base.utils.DATE_FORMATTER
 import br.com.programadorthi.base.utils.IO_DISPATCHER
-import br.com.programadorthi.base.utils.MONEY_FORMATTER
 import dagger.Module
 import dagger.Provides
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
 import retrofit2.Retrofit
-import java.math.BigDecimal
-import java.util.*
 import javax.inject.Named
 
 @Module
@@ -117,24 +110,5 @@ object BlockchainModule {
     fun provideBlockchainInteractor(
         blockchainRepository: BlockchainRepository
     ): BlockchainInteractor = BlockchainInteractorImpl(blockchainRepository)
-
-    // =================================================
-    // =============== PRESENTATION ====================
-    // =================================================
-
-    @Provides
-    @JvmStatic
-    fun provideBlockchainViewModel(
-        blockchainInteractor: BlockchainInteractor,
-        coroutineScope: CoroutineScope,
-        @Named(DATE_FORMATTER) dateFormatter: TextFormatter<Date>,
-        @Named(MONEY_FORMATTER) moneyFormatter: TextFormatter<BigDecimal>
-    ): BlockchainViewModel =
-        BlockchainViewModel(
-            blockchainInteractor,
-            dateFormatter,
-            moneyFormatter,
-            coroutineScope
-        )
 
 }
