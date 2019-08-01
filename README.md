@@ -13,10 +13,10 @@ Explore the project branches and modules to see how it works. The project archit
 | Branch | Description |
 | ------------- | ------------- |
 | [master](https://github.com/programadorthi/Anarchitecturetry) | Monolithic using RxJava. Same the develop |
-| [develop](https://github.com/programadorthi/Anarchitecturetry/tree/develop) | Monolithic using RxJava. |
-| [develop-coroutines](https://github.com/programadorthi/Anarchitecturetry/tree/develop-coroutines) | Monolithic using Coroutines. |
+| [develop](https://github.com/programadorthi/Anarchitecturetry/tree/develop) | Monolithic using RxJava and Dagger 2. |
+| [develop-coroutines](https://github.com/programadorthi/Anarchitecturetry/tree/develop-coroutines) | Monolithic using Coroutines and Dagger 2. |
 | [multi-module](https://github.com/programadorthi/Anarchitecturetry/tree/multi-module) | Multi-module dynamic-feature using RxJava and Koin. |
-| multi-module-coroutine (Soon) | Multi-module with dynamic-feature and using Coroutines. |
+| [multi-module-coroutine](https://github.com/programadorthi/Anarchitecturetry/tree/multi-module-coroutines) | Multi-module dynamic-feature using Coroutines and Dagger 2. |
 
 ### Overview
 
@@ -41,7 +41,8 @@ Below you see the package organization sample.
 
 # WARNING
 
-If you are beginning in Android or your project is below SDK 23, you should use `minSdkVersion`. `minSdkVersionDev` greater than or equals to 23 is for Android experts only!!!
+- If you are beginning in Android or your project is below SDK 23, you should use `minSdkVersion`. `minSdkVersionDev` greater than or equals to 23 is for Android experts only!!!
+- Instrumented unit tests not supported with dynamic features.
 
 # Credits
   * [Blockchain](https://www.blockchain.com/) for the public Blockchain API
