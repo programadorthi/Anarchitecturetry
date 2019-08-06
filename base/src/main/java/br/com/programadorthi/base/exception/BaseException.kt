@@ -23,6 +23,11 @@ sealed class BaseException(message: String = "") : RuntimeException(message) {
      */
     class UnknownEndpointException(url: String) : BaseException("Unknown endpoint: $url")
 
+    /**
+     * Exception to identify an invalid endpoint
+     */
+    class UnexpectedException(exception: Throwable) : BaseException(exception.message ?: "")
+
     companion object {
         /**
          * Check if the current BaseException is an exception to report.
@@ -31,6 +36,7 @@ sealed class BaseException(message: String = "") : RuntimeException(message) {
         fun isAnExceptionToReport(throwable: Throwable?): Boolean =
             throwable is HttpCallException ||
                     throwable is EssentialParamMissingException ||
+                    throwable is UnexpectedException ||
                     throwable is UnknownEndpointException
     }
 }

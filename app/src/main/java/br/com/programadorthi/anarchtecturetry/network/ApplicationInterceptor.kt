@@ -7,6 +7,7 @@ import okhttp3.Response
 import java.net.UnknownHostException
 
 class ApplicationInterceptor(private val tokenProvider: TokenProvider) : Interceptor {
+
     override fun intercept(chain: Interceptor.Chain): Response {
         val newRequest = createRequestIfRequired(chain.request())
 
@@ -14,6 +15,8 @@ class ApplicationInterceptor(private val tokenProvider: TokenProvider) : Interce
             chain.proceed(newRequest)
         } catch (_: UnknownHostException) {
             throw BaseException.UnknownEndpointException(newRequest.url().toString())
+        } catch (ex: Exception) {
+            throw BaseException.UnexpectedException(ex)
         }
 
         if (response.isSuccessful) {
