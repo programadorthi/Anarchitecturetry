@@ -25,7 +25,7 @@ class BlockchainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        inject(this)
+        inject()
 
         setContentView(R.layout.activity_blockchain)
 

@@ -1,1 +1,1 @@
-include ':app', ':base', ':blockchain'
+include ':app', ':base', ':features:blockchain'

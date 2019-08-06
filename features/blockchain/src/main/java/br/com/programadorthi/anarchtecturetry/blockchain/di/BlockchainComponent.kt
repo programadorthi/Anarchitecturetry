@@ -3,7 +3,7 @@ package br.com.programadorthi.anarchtecturetry.blockchain.di
 import br.com.programadorthi.anarchtecturetry.blockchain.di.modules.BlockchainModule
 import br.com.programadorthi.anarchtecturetry.blockchain.di.modules.BlockchainPresentationModule
 import br.com.programadorthi.anarchtecturetry.blockchain.presentation.BlockchainActivity
-import br.com.programadorthi.anarchtecturetry.di.BaseActivityComponent
+import br.com.programadorthi.anarchtecturetry.di.ActivityComponent
 import br.com.programadorthi.anarchtecturetry.di.MainComponent
 import br.com.programadorthi.anarchtecturetry.di.scopes.FeatureScope
 import dagger.Component
@@ -16,7 +16,7 @@ import dagger.Component
     dependencies = [MainComponent::class]
 )
 @FeatureScope
-interface BlockchainComponent : BaseActivityComponent<BlockchainActivity> {
+interface BlockchainComponent : ActivityComponent<BlockchainActivity> {
     @Component.Factory
     interface Factory {
         fun blockchainComponent(

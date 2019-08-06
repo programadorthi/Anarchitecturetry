@@ -9,4 +9,4 @@ interface BaseComponent<Target> {
     fun inject(target: Target)
 }
 
-interface BaseActivityComponent<Target : Activity> : BaseComponent<Target>
+interface ActivityComponent<Target : Activity> : BaseComponent<Target>

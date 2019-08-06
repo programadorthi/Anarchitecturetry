@@ -4,8 +4,8 @@ import br.com.programadorthi.anarchtecturetry.blockchain.di.modules.BlockchainPr
 import br.com.programadorthi.anarchtecturetry.blockchain.presentation.BlockchainActivity
 import br.com.programadorthi.anarchtecturetry.di.mainComponent
 
-fun inject(target: BlockchainActivity) {
+fun BlockchainActivity.inject() {
     DaggerBlockchainComponent.factory()
-        .blockchainComponent(BlockchainPresentationModule(target), target.mainComponent())
-        .inject(target)
+        .blockchainComponent(BlockchainPresentationModule(this), this.mainComponent())
+        .inject(this)
 }

@@ -35,7 +35,7 @@ class BlockchainViewModel(
     }
 
     fun initialize() {
-        if (mutableCurrentMarketPrice.value != null && mutableMarketPrices.value != null) return
+        if (isInitialized()) return
         refresh()
     }
 
@@ -75,6 +75,10 @@ class BlockchainViewModel(
             date = dateFormatter.format(blockchain.date, Locale.getDefault()),
             value = moneyFormatter.format(blockchain.value, Locale.getDefault())
         )
+    }
+
+    private fun isInitialized(): Boolean {
+        return mutableCurrentMarketPrice.value != null && mutableMarketPrices.value != null
     }
 
 }

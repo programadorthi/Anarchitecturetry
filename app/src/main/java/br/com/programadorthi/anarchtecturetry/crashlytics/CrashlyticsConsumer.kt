@@ -4,7 +4,7 @@ import br.com.programadorthi.base.exception.BaseException
 import br.com.programadorthi.base.exception.CrashConsumer
 
 /**
- * Consumer implementation used to catch errors in the RxJava flow
+ * Consumer implementation used to catch errors
  */
 class CrashlyticsConsumer : CrashConsumer {
     override fun report(throwable: Throwable) {

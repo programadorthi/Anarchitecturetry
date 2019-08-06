@@ -8,7 +8,6 @@ allprojects {
     afterEvaluate {
         extensions.findByName('kapt')?.arguments {
             arg("dagger.formatGeneratedSource", "disabled")
-            arg("dagger.gradle.incremental", "enabled")
         }
     }
     // Work-around because new objenesis version are using MethodHandle.invoke :/
