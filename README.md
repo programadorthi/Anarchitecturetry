@@ -1,3 +1,6 @@
+# DEPRECATED
+This is now **DEPRECATED** in favor of [Android Super App](https://github.com/programadorthi/android-super-app).
+
 # About
 This project is a compilation of some best practices that I have found during my Android development career.
 
